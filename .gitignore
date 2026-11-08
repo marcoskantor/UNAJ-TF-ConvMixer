@@ -19,3 +19,5 @@ Trabajo Final Integrador*
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
+# artículo: se enlaza (arXiv), no se redistribuye
+paper/
