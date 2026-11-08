@@ -15,7 +15,6 @@ Docentes: Dr. Ing. Martín Morales y Dr. Ing. Marcelo Cappelletti
 | Presentación para la exposición oral (Beamer, estética UNAJ) | [`presentacion/TF_presentacion.pdf`](presentacion/TF_presentacion.pdf) (fuente `.tex`) |
 | Código de la réplica (notebook) | [`notebooks/replica_convmixer.ipynb`](notebooks/replica_convmixer.ipynb) (ejecutado; copia [`.html`](notebooks/replica_convmixer.html)) |
 | Informe escrito del análisis crítico (APA 7) | [`informe/TF_informe.pdf`](informe/TF_informe.pdf) |
-| Guion de la exposición con tiempos y preguntas probables | [`presentacion/TF_guion.pdf`](presentacion/TF_guion.pdf) / [`.docx`](presentacion/TF_guion.docx) |
 
 ## Datos
 
@@ -51,7 +50,7 @@ python experimentos.py rapido      # prueba de humo (~10 min en CPU)
 python experimentos.py todos       # todo el TF (~5 h en CPU de 8 núcleos)
 python figuras.py                  # figuras + presentacion/resultados.tex
 python construir_notebook.py       # regenera el notebook
-cd ../presentacion && python generar_guion.py && latexmk -pdf TF_presentacion.tex
+cd ../presentacion && latexmk -pdf TF_presentacion.tex
 cd ../informe && latexmk -pdf TF_informe.tex
 ```
 
@@ -66,7 +65,7 @@ src/            datos.py, modelos.py (ConvMixer, ResNet, MLP, seudoinversa, perc
 config.json     todas las semillas e hiperparámetros
 results/        resultados (JSON), pesos (.pt) y registros
 notebooks/      notebook didáctico ejecutado (+ HTML)
-presentacion/   Beamer UNAJ, figuras, guion
+presentacion/   Beamer UNAJ y figuras
 informe/        informe escrito (APA 7)
 ```
 
