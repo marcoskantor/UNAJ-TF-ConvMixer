@@ -1,0 +1,29 @@
+\begin{frame}{CPU frente a GPU: el cómputo es la variable que más pesa}
+  \centering\footnotesize
+  \resizebox{\linewidth}{!}{\begin{tabular}{lccc}
+    \toprule
+     & \textbf{Mi computadora (CPU)} & \textbf{Google Colab (GPU T4)} & \textbf{Artículo (GPU)}\\
+    \midrule
+    Modelo & ConvMixer-128/8, $k$=9, $p$=2 & ConvMixer-256/8, $k$=5, $p$=2 & 256/8, $k$=9 o 5, $p$=2\\
+    Parámetros & 223\,k & 594\,k & 709\,k / 594\,k\\
+    Aumentación & escalado, recorte, espejo & + RandAugment, ColorJitter, borrado & \texttt{timm} + mixup, CutMix\\
+    Épocas & \epocasCNN & \epColab & 200\\
+    Tiempo por época & \minEpCPU{} min & \segColab{} s & --\\
+    Tiempo total & \minCMnueve{} min & \minColab{} min & --\\
+    \rowcolor{unajgris}\textbf{Exactitud de test} & \textbf{\accCMnueve\,\%} & \textbf{\accColab\,\%} & \textbf{95,0 / 95,21\,\%}\\
+    \bottomrule
+  \end{tabular}}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{.48\textwidth}\footnotesize
+      \textbf{Lectura}: en un tiempo parecido (entre 1,5 y 2 horas), la GPU entrena un modelo 2,7 veces más grande,
+      con muchas más épocas y con aumentación completa: \textbf{12 puntos más} con el mismo código.
+    \end{column}
+    \begin{column}{.48\textwidth}\footnotesize
+      \textbf{Para el debate}: ¿cuánto de ``el mejor modelo'' es en realidad ``el que más cómputo recibió''? Es la
+      misma crítica que le hago al artículo cuando compara recetas distintas, y conecta con la ética: sin GPU sólo
+      se verifica una versión reducida.
+    \end{column}
+  \end{columns}
+  \fuente{\textit{Nota.} Una corrida por configuración. Colab: se informa la última época, \colabNota. Valores del artículo: Trockman y Kolter (2023, Tabla 4). Elaboración propia.}
+\end{frame}

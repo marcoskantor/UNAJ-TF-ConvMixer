@@ -1,0 +1,21 @@
+# datos (se descargan solos desde la Universidad de Toronto)
+data/
+# grabaciones y consigna de la cátedra
+*.mp4
+Grabacion*
+Trabajo Final Integrador*
+# LaTeX
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+# Python
+__pycache__/
+.ipynb_checkpoints/
+*.pyc

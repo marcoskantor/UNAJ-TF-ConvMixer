@@ -1,0 +1,64 @@
+% Anexo (para preguntas)
+\begin{frame}[fragile]{Anexo A: el modelo completo en PyTorch (Fig.~7 del artículo)}
+\begin{columns}[T]
+\begin{column}{.56\textwidth}
+\scriptsize
+\begin{verbatim}
+def ConvMixer(dim, depth, kernel_size=9,
+              patch_size=7, n_classes=1000):
+  return nn.Sequential(
+    nn.Conv2d(3, dim, kernel_size=patch_size,
+              stride=patch_size),
+    nn.GELU(), nn.BatchNorm2d(dim),
+    *[nn.Sequential(
+        Residual(nn.Sequential(
+          nn.Conv2d(dim, dim, kernel_size,
+                    groups=dim, padding="same"),
+          nn.GELU(), nn.BatchNorm2d(dim))),
+        nn.Conv2d(dim, dim, kernel_size=1),
+        nn.GELU(), nn.BatchNorm2d(dim)
+      ) for i in range(depth)],
+    nn.AdaptiveAvgPool2d((1,1)), nn.Flatten(),
+    nn.Linear(dim, n_classes))
+\end{verbatim}
+\end{column}
+\begin{column}{.40\textwidth}
+\small
+\textbf{Verificación de la ec.~(4)} (PyTorch = fórmula):\\[3pt]
+\begin{tabular}{lr}
+\toprule
+Modelo & Parámetros\\
+\midrule
+256/8, $k$=9, $p$=1 & 706\,570\\
+256/8, $k$=9, $p$=2 & 708\,874\\
+128/8, $k$=9, $p$=2 & 223\,370\\
+128/8, $k$=3, $p$=2 & 149\,642\\
+\bottomrule
+\end{tabular}\\[4pt]
+{\footnotesize Coinciden con la Tabla~4 del artículo (707\,k y 709\,k).}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Anexo B: los modelos de las otras unidades, en una línea cada uno}
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{U2 Seudoinversa} & $W=V\,\mathrm{diag}\!\big(\tfrac{\sigma_i}{\sigma_i^2+\lambda}\big)U^\top T$ sobre
+3\,072 píxeles + sesgo; $\lambda$ por validación cruzada de 5 pliegues, con una SVD por pliegue.\\
+\textbf{U2 Perceptrón} & Una neurona escalón por clase; si se equivoca, $w_{y}\mathrel{+}=x$ y $w_{\hat y}\mathrel{-}=x$;
+pesos promediados (Freund y Schapire, 1999).\\
+\textbf{U3 MLP} & 3072--1024--512--10, ReLU, \emph{dropout} 0,2, AdamW + programa triangular, 15 épocas.\\
+\textbf{U5 ELM} & $H=\mathrm{ReLU}(XA+b)$ con $A,b$ aleatorios fijos; $\beta=H^+T$ (Tikhonov); $L\in\{500,\dots,3000\}$.\\
+\textbf{U5 ML-ELM} & Dos ELM-autoencoders (1\,000 + 1\,000, pesos ortogonales) + ELM de 3\,000 (Kasun et al., 2013).\\
+\textbf{U4 ResNet} & Tallo $3\times3$ + 3 bloques residuales (32, 64, 128 canales; resolución $32\to16\to8$),
+\emph{pooling} global; misma receta que el ConvMixer.\\
+\bottomrule
+\end{tabularx}
+\end{frame}
+
+\figslide{Anexo C: curva de validación cruzada de la seudoinversa (U1 + U2)}{f_cv_lineal.png}{\textit{Nota.} Exactitud media $\pm$ desvío en 5 pliegues de las 45\,000 imágenes de entrenamiento. El test se usa una sola vez, con el $\lambda$ elegido.}
+
+\figslide{Anexo D: matriz de confusión del ConvMixer-128/8 (test, \% por fila)}{f_confusion.png}{\textit{Nota.} Las confusiones se concentran entre clases parecidas: perro con gato (13\,\%) y gato con perro (12\,\%); los animales chicos se confunden con rana y el camión con el auto. Gato es la clase más difícil (62\,\% de acierto). Elaboración propia.}
+
+\figslide{Anexo E: filtros del embebido de parches (cf.\ Apéndice C del artículo)}{f_filtros.png}{\textit{Nota.} 64 filtros RGB de $4\times4$ del ConvMixer con $p=4$: bordes orientados y manchas de color, como los que describen Trockman y Kolter (2023). Elaboración propia.}

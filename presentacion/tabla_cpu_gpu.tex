@@ -1,0 +1,26 @@
+\begin{table}[h]\small
+\caption{La misma metodología con distinto cómputo: CPU propia, GPU de Colab y artículo}
+\label{tab:cpugpu}
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{lccc}
+\toprule
+ & Mi computadora (CPU, 8 núcleos) & Google Colab (GPU Tesla T4) & Artículo (GPU)\\
+\midrule
+Modelo & ConvMixer-128/8, $k=9$, $p=2$ & ConvMixer-256/8, $k=5$, $p=2$ & ConvMixer-256/8, $k=9$ o $5$, $p=2$\\
+Parámetros & 223\,370 & 594\,186 & 709\,k / 594\,k\\
+Aumentación & escalado, recorte y espejo & + RandAugment, ColorJitter, \emph{random erasing} & \texttt{timm} + mixup y CutMix\\
+Épocas & \epocasCNN & \epColab & 200\\
+Tiempo por época & \minEpCPU{} min & \segColab{} s & no informado\\
+Tiempo total & \minCMnueve{} min & \minColab{} min & no informado\\
+Exactitud de test & \pct{\accCMnueve} & \pct{\accColab} & \pct{95,0} / \pct{95,21}\\
+\bottomrule
+\end{tabular}}
+\nota{Una corrida por configuración. Colab: se informa la última época, \colabNota. Valores del artículo: Trockman y Kolter (2023, Tabla 4).}
+\end{table}
+
+La Tabla~\ref{tab:cpugpu} resume la comparación que me parece más interesante para discutir. En un tiempo de reloj
+parecido, la GPU entrenó un modelo 2,7 veces más grande, con muchas más épocas y con la aumentación completa, y
+ganó unos 12 puntos con el mismo código. Esto relativiza las comparaciones entre arquitecturas: una parte de lo que
+se atribuye a ``un modelo mejor'' corresponde a ``un modelo que recibió más cómputo y una receta más trabajada''. Es
+justamente la crítica que se le puede hacer al artículo cuando compara contra números de otros trabajos.
+

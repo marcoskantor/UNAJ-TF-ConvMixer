@@ -1,0 +1,40 @@
+{
+ "_nota": "Hiperparámetros y semillas de TODOS los experimentos. Escala reducida para CPU (ver informe, §Réplica).",
+ "hilos": 8,
+ "n_validacion": 5000,
+ "semilla_particion": 0,
+ "entrenamiento_cnn": {
+  "epocas": 10,
+  "lote": 128,
+  "lr_max": 0.01,
+  "weight_decay": 0.01,
+  "clip": 1.0,
+  "escalado": true,
+  "recorte_espejo": true,
+  "borrado": 0.0,
+  "mixup": 0.0,
+  "suavizado": 0.0,
+  "semilla": 0
+ },
+ "cnn": {
+  "cm128_k9": {"tipo": "convmixer", "h": 128, "d": 8, "k": 9, "p": 2, "rol": "ConvMixer-128/8 (modelo del paper, k=9, p=2)"},
+  "resnet":   {"tipo": "resnet", "anchos": [32, 64, 128], "bloques": 1, "h": 0, "d": 0, "k": 3, "p": 0, "rol": "CNN piramidal tipo ResNet con la misma receta"},
+  "cm128_k3": {"tipo": "convmixer", "h": 128, "d": 8, "k": 3, "p": 2, "rol": "Ablación de núcleo: k=3"},
+  "cm128_p4": {"tipo": "convmixer", "h": 128, "d": 8, "k": 9, "p": 4, "rol": "Ablación de parche: p=4"}
+ },
+ "orden_cnn": ["cm128_k9", "resnet", "cm128_k3", "cm128_p4"],
+ "clasicos": {
+  "semillas": 3,
+  "k_folds": 5,
+  "lineal_lambdas": [0, 10, 100, 1000, 10000, 100000],
+  "perceptron_epocas": 5,
+  "mlp_ocultas": [1024, 512],
+  "mlp_entrenamiento": {"epocas": 15, "lote": 128, "lr_max": 0.001, "weight_decay": 0.01, "clip": 1.0,
+                        "escalado": false, "recorte_espejo": false},
+  "elm_ocultas": [500, 1000, 2000, 3000],
+  "elm_lambdas": [0.01, 0.1, 1, 10, 100, 1000],
+  "mlelm_capas": [1000, 1000],
+  "mlelm_salida": 3000,
+  "mlelm_lambda_ae": 0.1
+ }
+}

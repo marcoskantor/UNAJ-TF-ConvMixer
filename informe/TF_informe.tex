@@ -1,0 +1,403 @@
+% =================================================================
+% Trabajo Final Integrador — Tópicos en Aprendizaje Automático (UNAJ)
+% Análisis crítico de "Patches Are All You Need?" (Trockman & Kolter)
+% Compilar: pdflatex TF_informe.tex (dos pasadas). Los números salen de
+% ../presentacion/resultados.tex, generado por src/figuras.py.
+% =================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+\else
+  \usepackage{fontspec}
+\fi
+\usepackage[spanish,es-noshorthands,es-nodecimaldot,es-tabla]{babel}
+\usepackage[margin=2.3cm,headheight=38pt]{geometry}
+\usepackage{graphicx,booktabs,array,tabularx,amsmath,amssymb,xcolor,enumitem,caption,fancyhdr,titlesec}
+\usepackage[round]{natbib}
+\usepackage[hidelinks]{hyperref}
+\definecolor{unajazul}{HTML}{003366}
+\titleformat{\section}{\large\bfseries\color{unajazul}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{unajazul}}{\thesubsection}{0.5em}{}
+\graphicspath{{../presentacion/figuras/}}
+\input{../presentacion/resultados.tex}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\includegraphics[height=26pt]{logo_unaj.png}}
+\fancyhead[R]{\small\bfseries Doctorado en Ciencia y Tecnología}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\setlist{itemsep=0.15em,topsep=0.3em}
+\newcommand{\pct}[1]{#1\,\%}
+% Formato APA 7 para tablas y figuras: "Tabla 1" en negrita, título en cursiva en la línea siguiente, nota debajo
+\captionsetup{labelfont=bf,textfont=it,labelsep=newline,justification=raggedright,singlelinecheck=false,skip=4pt}
+\captionsetup[table]{name=Tabla}
+\newcommand{\nota}[1]{\par\vspace{3pt}{\footnotesize\raggedright\textit{Nota.} #1\par}}
+
+\begin{document}
+\thispagestyle{fancy}
+\begin{center}
+  {\Large\bfseries Curso: Tópicos en Aprendizaje Automático}\\[0.4em]
+  {\large Trabajo Final Integrador: Análisis Crítico de un Artículo Científico}\\[0.9em]
+  {\Large\bfseries\color{unajazul} ¿Bastan los parches? Análisis y réplica parcial del ConvMixer}\\[0.5em]
+  {\normalsize Trockman, A. y Kolter, J. Z. (2023). \emph{Patches Are All You Need?}\\
+   Transactions on Machine Learning Research. arXiv:2201.09792.}\\[0.9em]
+  {\normalsize Marcos David Kantor}\\
+  {\small Docentes: Dr.\ Ing.\ Martín Morales y Dr.\ Ing.\ Marcelo Cappelletti --- Universidad Nacional Arturo Jauretche, 2026}
+\end{center}
+
+\begin{center}
+\fbox{\begin{minipage}{0.93\textwidth}\small
+\textbf{Resumen.} El artículo de \citet{convmixer} pregunta si el buen desempeño de los \emph{Vision Transformers} (ViT) se debe a la
+autoatención o a que la imagen entra dividida en \emph{parches}. Para separar ambos factores propone el ConvMixer,
+una red que conserva el diseño de parches del ViT pero reemplaza toda la atención por convoluciones estándar, y
+muestra que iguala o supera a ViT, MLP-Mixer, DeiT, ResMLP y ResNet de tamaño comparable en ImageNet-1k.
+Analicé el trabajo según la consigna y repliqué parcialmente su metodología en CIFAR-10, en CPU y con un
+presupuesto de cómputo unas 20 veces menor que el del Apéndice~B. En la réplica, un ConvMixer-128/8 alcanza
+\pct{\accCMnueve} de exactitud de test en \epocasCNN{} épocas, prácticamente igual que una ResNet entrenada con la
+misma receta (\pct{\accResNet}), que resulta \ratioTput{} veces más rápida. Se reprodujo el efecto del tamaño de
+parche, pero no el del tamaño de núcleo: con tan pocas épocas, el núcleo chico rindió más. Con la receta oficial de los
+autores en una GPU de Colab, el modelo llegó a \pct{\accColab}, cerca del \pct{95,21} publicado. Para ubicar
+el modelo en el programa del curso, lo comparé además con una regresión lineal por seudoinversa
+(\pct{\accLineal}), el perceptrón simple (\pct{\accPerceptron}), un perceptrón multicapa (\pct{\accMLP}) y
+máquinas de aprendizaje extremo (ELM \pct{\accELM}; ML-ELM \pct{\accMLELM}).
+\end{minipage}}
+\end{center}
+
+% =================================================================
+\section{Selección del artículo}
+\begin{itemize}
+  \item \textbf{Referencia.} Trockman, A. y Kolter, J. Z. \emph{Patches Are All You Need?} Publicado en
+  \emph{Transactions on Machine Learning Research} (2023); preprint arXiv:2201.09792 (enero de 2022). La versión
+  que se analiza es la enviada a ICLR 2022 (OpenReview), cuyo contenido técnico coincide con la publicada. Código
+  oficial: \url{https://github.com/locuslab/convmixer}.
+  \item \textbf{Cumple la consigna}: es reciente (2022--2023), aborda un problema relevante de AA (clasificación
+  de imágenes y diseño de arquitecturas), presenta un modelo propio, contiene resultados experimentales en dos
+  conjuntos de datos y compara varios algoritmos (ResNet, ViT, DeiT, MLP-Mixer, ResMLP, Swin, MobileNet isotrópica).
+  \item \textbf{Ubicación en el programa}: Unidad~4 (CNN): convoluciones 2D, SGD, arquitecturas y modelos de CNN.
+  La réplica toca también las unidades 1, 2, 3 y 5.
+\end{itemize}
+
+% =================================================================
+\section{Introducción}
+\textbf{Problema.} Desde 2012 las CNN dominaron la visión por computadora. En 2020--2021 el ViT
+\citep{vit} mostró que un \emph{transformer} puede igualarlas o superarlas si se entrena con suficientes datos.
+Para aplicar autoatención (cuyo costo crece con el cuadrado del número de elementos) a una imagen, el ViT la corta
+en parches de $16\times16$ píxeles y trata cada parche como una ``palabra''. Ese cambio de representación vino
+acompañado de un cambio de arquitectura: el ViT es \emph{isotrópico}, es decir, conserva la misma resolución y el
+mismo ancho en todas sus capas, mientras que las CNN clásicas reducen la resolución y aumentan los canales de forma
+progresiva. Ambos cambios llegaron juntos, y por eso no se sabe a cuál se debe la mejora. La pregunta del artículo
+es: \emph{¿el desempeño del ViT se debe al transformer o, al menos en parte, a usar parches como representación de
+entrada?}
+
+\textbf{Importancia para el AA.} Es una pregunta sobre el \emph{sesgo inductivo} de los modelos, es decir, qué
+supuestos sobre los datos están incorporados en la arquitectura. Si gran parte de la ganancia se debe a los parches
+y al diseño isotrópico, es posible conservar la eficiencia de datos de la convolución (localidad y pesos
+compartidos) sin pagar el costo cuadrático de la atención. Esto tiene consecuencias prácticas en dominios con
+pocos datos, como las imágenes médicas. El artículo también discute una práctica común: atribuir el éxito de un
+modelo nuevo a su operación más llamativa (la atención) sin aislar los demás cambios.
+
+\textbf{Motivación de los autores.} Construir el modelo más simple posible que conserve todo lo que el ViT y el
+MLP-Mixer tienen en común (parches, isotropía, mezcla espacial separada de la mezcla entre canales) y reemplazar la
+atención y las MLP por la operación menos expresiva disponible: la convolución. Si un modelo así compite con los
+originales, hay evidencia de que los parches son parte importante del resultado. Los autores admiten que el título
+es una exageración.
+
+% =================================================================
+\section{Explicación teórica del modelo}
+\subsection{Tipo de algoritmo y tipo de aprendizaje}
+El ConvMixer es una red neuronal convolucional profunda para \textbf{clasificación} de imágenes, entrenada con
+\textbf{aprendizaje supervisado} (pares imagen--etiqueta, pérdida de entropía cruzada) mediante descenso por gradiente
+estocástico (AdamW). No usa pre-entrenamiento ni datos externos.
+
+\subsection{Funcionamiento general}
+\begin{enumerate}
+  \item \textbf{Embebido de parches.} Una convolución con núcleo $p\times p$ y paso $p$ transforma la imagen
+  $c\times n\times n$ en un tensor $h\times\frac{n}{p}\times\frac{n}{p}$: cada parche se proyecta linealmente a un
+  vector de dimensión $h$. A diferencia del ViT, los parches conservan su disposición espacial (``tensor layout'').
+  \begin{equation}z_0=\mathrm{BN}\big(\sigma\{\mathrm{Conv}_{c\to h}(X,\ \text{stride}=p,\ \text{kernel}=p)\}\big)\end{equation}
+  \item \textbf{$d$ bloques ConvMixer}, todos iguales y sin submuestreo (isotropía):
+  \begin{align}
+  z'_l&=\mathrm{BN}\big(\sigma\{\mathrm{ConvDepthwise}_{k\times k}(z_{l-1})\}\big)+z_{l-1} &&\text{(mezcla espacial, con residual)}\\
+  z_{l+1}&=\mathrm{BN}\big(\sigma\{\mathrm{ConvPointwise}_{1\times1}(z'_l)\}\big) &&\text{(mezcla entre canales)}
+  \end{align}
+  La convolución \emph{depthwise} aplica un filtro $k\times k$ distinto a cada canal (no mezcla canales); la
+  \emph{pointwise} ($1\times1$) combina los $h$ canales en cada posición. Juntas forman una convolución separable,
+  como en MobileNet. La activación $\sigma$ es GELU y la normalización es BatchNorm.
+  \item \textbf{Clasificador}: \emph{pooling} promedio global, que produce un vector de dimensión $h$, y una capa
+  lineal con \emph{softmax}.
+\end{enumerate}
+El modelo completo se escribe en unas seis líneas de PyTorch (Fig.~3 del artículo). Mi implementación
+(\texttt{src/modelos.py}) transcribe su Fig.~7.
+
+\subsection{Principales características y parámetros}
+\begin{itemize}
+  \item \textbf{Cuatro hiperparámetros de arquitectura}: ancho $h$, profundidad $d$, tamaño de parche $p$ y tamaño
+  de núcleo $k$. Se nombra \textbf{ConvMixer-$h$/$d$}. El número de parámetros tiene la forma cerrada (ec.~4):
+  $\#\theta=h\,[\,d(k^2+h+6)+c\,p^2+n_{\text{clases}}+3\,]+n_{\text{clases}}$; el término dominante es $d\,h^2$, que
+  corresponde a las convoluciones $1\times1$.
+  \item \textbf{Núcleos inusualmente grandes} ($k=7$ a $9$, frente al $k=3$ habitual), para mezclar posiciones
+  lejanas como lo hacen la atención o las MLP de mezcla espacial. El campo receptivo crece como $p\,[1+d(k-1)]$
+  píxeles.
+  \item \textbf{Resolución interna} $n/p$ constante. Con parches chicos es alta, lo que da buena exactitud a costa
+  de mucho cómputo y memoria.
+\end{itemize}
+
+\subsection{Modelos comparados que no se ven en el curso}
+\begin{description}[leftmargin=1em,style=nextline]
+  \item[ResNet] \citep{resnet} CNN piramidal con conexiones residuales $y=F(x)+x$, que permiten entrenar redes de
+  más de cien capas. Es la línea de base clásica.
+  \item[ViT / DeiT] \citep{vit,deit} \emph{Transformer} sobre parches de $16\times16$: cada capa alterna autoatención
+  multi-cabeza (cada parche pondera a todos los demás según su similitud,
+  $\mathrm{softmax}(QK^\top/\sqrt{d})V$) y una MLP por parche. DeiT es un ViT entrenado con más regularización para
+  que funcione con ImageNet-1k solo.
+  \item[MLP-Mixer / ResMLP] \citep{mixer,resmlp} Reemplazan la atención por una MLP que actúa a lo largo de los
+  parches (mezcla espacial) y otra a lo largo de los canales. El ConvMixer toma de ellos la idea de \emph{mezclar}
+  y la implementa con convoluciones.
+  \item[Swin] \citep{swin} Transformer jerárquico con atención en ventanas locales desplazadas. Es más complejo y se incluye como
+  referencia del estado del arte.
+\end{description}
+
+\subsection{Ventajas, limitaciones y rasgos distintivos}
+\textbf{Ventajas}: simplicidad extrema; buena exactitud por parámetro; sesgo inductivo convolucional (localidad,
+pesos compartidos), que da eficiencia de datos (más de \pct{96} en CIFAR-10 con 0,7\,M parámetros); acepta
+entradas de tamaño variable; su alta resolución interna lo hace candidato natural para segmentación.
+\textbf{Limitaciones}: baja velocidad de inferencia (\emph{throughput}) por los parches chicos y los núcleos
+depthwise grandes, que las librerías no optimizan bien; mucha memoria; no es el estado del arte (Swin lo supera
+entre 1,2 y 1,6 puntos y es entre 4 y 6 veces más rápido).
+
+% =================================================================
+\section{Metodología del artículo}
+\textbf{Enfoque.} Es un estudio empírico con dos partes. La primera es una comparación en ImageNet-1k contra
+modelos isotrópicos basados en parches (DeiT, ResMLP, ViT, MLP-Mixer) y contra ResNet entrenadas con la misma
+receta. La segunda es un conjunto de ablaciones y de barridos de diseño en CIFAR-10 (Apéndice~B).
+
+\textbf{Datos.}
+\begin{itemize}
+  \item \emph{ImageNet-1k}: unos 1,28\,M de imágenes de entrenamiento y 50\,000 de validación, 1\,000 clases,
+  entrada de $224\times224$. Sin pre-entrenamiento ni datos adicionales.
+  \item \emph{CIFAR-10}: 50\,000 imágenes de entrenamiento y 10\,000 de prueba, de $32\times32$ en color, 10 clases
+  balanceadas (avión, auto, pájaro, gato, ciervo, perro, rana, caballo, barco, camión).
+\end{itemize}
+
+\textbf{Preprocesamiento y selección de características.} No hay selección explícita de variables: la capa de
+parches \emph{aprende} los rasgos (filtros tipo Gabor y detectores de color, Apéndice~C). El preprocesamiento
+consiste en normalizar por canal y aplicar una aumentación de datos intensa con la biblioteca \texttt{timm}:
+RandAugment, mixup, CutMix, \emph{random erasing}, escalado aleatorio y recorte de la norma del gradiente. La
+ablación de la Tabla~3 muestra que esta aumentación es decisiva en CIFAR-10: sin escalado aleatorio la exactitud
+cae de \pct{95,88} a \pct{86,24}; sin recorte de gradiente, a \pct{86,33}; sin RandAugment, a \pct{92,86}.
+
+\textbf{Partición, entrenamiento y validación.} En ImageNet se usa la partición estándar y se informa la
+exactitud top-1 en el conjunto de validación oficial. En CIFAR-10 se usan los 50\,000 de entrenamiento y se informa
+sobre los 10\,000 de prueba. Se entrena con AdamW \citep{adamw} y un programa de tasa de aprendizaje triangular: entre 90 y 300
+épocas en ImageNet (unos 9 días en 10 GPU RTX8000 para el modelo mayor) y 200 épocas en CIFAR-10.
+
+\textbf{Optimización de hiperparámetros.} Los autores dicen que \emph{no hicieron ninguna} búsqueda en ImageNet:
+fijaron parámetros ``de sentido común'' que funcionaron en un ConvMixer-1024/12 y los mantuvieron para todos los
+modelos. En CIFAR-10 sí ajustaron $h$, $d$, $p$, $k$ y el \emph{weight decay} (Tabla~4) a mano, sin búsqueda
+sistemática y, por lo que se informa, sin un conjunto de validación separado del de prueba.
+
+\textbf{Métricas.} Exactitud top-1, número de parámetros y \emph{throughput} (imágenes por segundo en una RTX8000,
+lotes de 64, fp16).
+
+% =================================================================
+\section{Resultados del artículo}
+\begin{table}[h]\small
+\caption{Resultados del artículo en ImageNet-1k (selección de sus Tablas 1 y 2)}
+\label{tab:paper}
+\centering
+\begin{tabular}{lccccc}
+\toprule
+Modelo & Parche & Parámetros (M) & Img/s & Épocas & Top-1 ImageNet (\%)\\
+\midrule
+\textbf{ConvMixer-1536/20} & 7 & 51,6 & 89 & 150 & \textbf{81,37}\\
+\textbf{ConvMixer-768/32} & 7 & 21,1 & 203 & 300 & \textbf{80,16}\\
+ResNet-152 (misma receta) & -- & 60,2 & 872 & 150 & 79,64\\
+DeiT-B & 16 & 86 & 703 & 300 & 81,8\\
+ResMLP-B24/8 & 8 & 129 & 140 & 400 & 81,0\\
+ViT-B/16 & 16 & 86 & 704 & 300 & 77,9\\
+Mixer-B/16 & 16 & 59 & 816 & 300 & 76,44\\
+Swin-T & 4 & 29 & 884 & 300 & 81,3\\
+\bottomrule
+\end{tabular}
+\nota{Imágenes de $224\times224$, sin datos adicionales. Img/s medido por los autores en una GPU RTX8000 (lote 64, fp16). Sólo los ConvMixer y la ResNet se entrenaron con la misma receta; el resto de los valores proviene de los artículos originales. Adaptado de Trockman y Kolter (2023, Tablas 1 y 2).}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{Principal}: con un presupuesto de parámetros similar, el ConvMixer supera a ResNet, ViT, MLP-Mixer
+  y ResMLP, y queda cerca de DeiT. El ConvMixer-768/32 iguala a la ResNet-152 con un tercio de sus parámetros.
+  \item \textbf{Comparación con modelos tradicionales}: la ResNet entrenada con exactamente la misma receta queda
+  por debajo en exactitud, pero es mucho más rápida (872 frente a 89 imágenes por segundo).
+  \item \textbf{Ablaciones}: los núcleos grandes ayudan (ImageNet: $-0{,}94$ puntos al pasar de $k=9$ a $k=3$;
+  CIFAR-10: \pct{93,61} con $k=3$ frente a \pct{95,88} con $k=9$); los parches más chicos rinden más
+  (\pct{78,9} con $p=14$ frente a \pct{81,4} con $p=7$; en CIFAR-10, \pct{95,0} con $p=2$ frente a \pct{92,6} con
+  $p=4$ y \pct{85,6} con $p=8$). Cambiar GELU por ReLU o BatchNorm por LayerNorm afecta poco.
+  \item \textbf{CIFAR-10}: más de \pct{91} con 0,1\,M parámetros y más de \pct{96} con 0,9\,M.
+\end{itemize}
+
+% =================================================================
+\section{Discusión y conclusiones del artículo}
+\textbf{Conclusiones de los autores.} El diseño isotrópico con embebido de parches es por sí mismo una plantilla
+potente: los parches hacen todo el submuestreo de una sola vez, lo que agranda el campo receptivo efectivo y
+facilita mezclar información espacial lejana. La atención no es lo único que la visión tomó del procesamiento de
+lenguaje; \emph{tokenizar} la entrada también lo es.
+
+\textbf{Limitaciones}, algunas reconocidas por los autores y otras que encontré al leerlo:
+\begin{enumerate}
+  \item \emph{La pregunta no queda respondida del todo.} Para separar el efecto de los parches haría falta un
+  experimento factorial: el mismo modelo con y sin parches, y modelos piramidales con y sin atención. El artículo
+  compara arquitecturas que difieren en varios factores a la vez. La línea de base más cercana, la MobileNet
+  isotrópica de \citet{sandler}, ya había mostrado algo similar antes que el ViT.
+  \item \emph{Comparaciones con recetas distintas.} Los números de DeiT, ResMLP, ViT y Swin se copian de sus
+  artículos, con otras recetas y otra cantidad de épocas. Sólo las ResNet se entrenaron en igualdad de condiciones.
+  \item \emph{Una sola corrida por configuración}, sin intervalos de confianza. Diferencias de 0,2 a 0,4 puntos,
+  como las que separan al ConvMixer de DeiT, pueden estar dentro de la variabilidad entre semillas.
+  \item \emph{Hiperparámetros de CIFAR-10 elegidos mirando el conjunto de prueba}, sin validación separada, lo que
+  introduce un sesgo optimista (Unidad~1: el test se usa una sola vez).
+  \item \emph{Costo}: el \emph{throughput} es entre 4 y 10 veces menor que el de los competidores de tamaño similar, y el modelo mayor
+  necesitó unos 90 días-GPU de cómputo.
+  \item \emph{Variables de confusión}: GELU frente a ReLU, cantidad de épocas y tamaño de parche distinto del de
+  DeiT. Los autores atenúan las dos primeras con un experimento con ReLU.
+\end{enumerate}
+
+\textbf{Trabajo futuro propuesto.} ConvMixers más profundos con parches más grandes y más regularización;
+optimización de bajo nivel de la convolución depthwise de núcleo grande; cuellos de botella o un clasificador más
+expresivo; segmentación semántica y detección; pre-entrenamiento a gran escala; experimentos que aíslen mejor el
+efecto de los parches. Trabajos posteriores, como ConvNeXt \citep{convnext} y RepLKNet \citep{replknet}, confirmaron que los núcleos grandes y las
+recetas modernas cierran la brecha entre CNN y transformers.
+
+% =================================================================
+\section{Réplica parcial de la metodología}
+\subsection{Diseño}
+Repliqué el \textbf{experimento de CIFAR-10 del Apéndice~B} con el mismo conjunto de datos, que es público (\citealp{cifar}; descarga oficial de la Universidad de Toronto: \url{https://www.cs.toronto.edu/~kriz/cifar-10.html}, archivo \texttt{cifar-10-python.tar.gz}, 170\,MB), y
+mantuve fijos todos los elementos de la metodología que el hardware disponible permitía. El código, los
+hiperparámetros y las semillas están en el repositorio (\texttt{src/}, \texttt{config.json}) y en el notebook
+\texttt{notebooks/replica\_convmixer.ipynb}.
+\begin{itemize}
+  \item \textbf{Igual que el artículo}: arquitectura (transcripción literal de la Fig.~7), conjunto de datos,
+  AdamW, programa triangular de tasa de aprendizaje (el del repositorio oficial), recorte de la norma del gradiente
+  (1,0), escalado aleatorio, recorte con relleno y espejo, \emph{weight decay} $10^{-2}$, métrica (exactitud) y
+  conteo de parámetros por la ec.~(4), que verifiqué contra el conteo de PyTorch.
+  \item \textbf{Distinto, por cómputo}: usé la CPU de mi computadora (8 núcleos, sin GPU), \epocasCNN{} épocas en lugar de 200 y el
+  modelo ConvMixer-128/8 con $p=2$ en lugar de 256/8 con $p=1$, que en este equipo tardaría unas 3,5 horas
+  \emph{por época}. No usé RandAugment, mixup, CutMix ni \emph{random erasing}, porque con pocas épocas la
+  regularización fuerte retrasa la convergencia.
+  \item \textbf{Mejora metodológica}: separé 5\,000 imágenes de entrenamiento como validación. Evalué el test de
+  10\,000 una sola vez, al final. Los modelos clásicos eligieron su regularización por validación cruzada
+  de 5 pliegues (seudoinversa) o por el conjunto de validación (ELM).
+  \item \textbf{Comparaciones agregadas}: la ResNet con la misma receta (como en el artículo), ablaciones de
+  núcleo ($k=3$) y de parche ($p=4$), y cinco modelos del programa del curso sobre píxeles crudos: asociador lineal resuelto por seudoinversa con regularización de Tikhonov, perceptrón promediado \citep{freund}, MLP, ELM \citep{elm} con su versión regularizada \citep{elmreg} y ML-ELM \citep{mlelm}.
+\end{itemize}
+
+\subsection{Resultados}
+\begin{table}[h]\small
+\caption{Réplica en CIFAR-10: exactitud de test de los modelos de las cinco unidades}
+\label{tab:replica}
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{llrrrr}
+\toprule
+Unidad & Modelo & Parámetros & Test (\%) & Img/s (CPU) & Entrenamiento\\
+\midrule
+U4 & \textbf{ConvMixer-128/8}, $k=9$, $p=2$ & \paramsCMnueve & \textbf{\accCMnueve} & \tputCMnueve & \minCMnueve\ min\\
+U4 & ConvMixer-128/8, $k=3$, $p=2$ & \paramsCMtres & \accCMtres & \tputCMtres & \minCMtres\ min\\
+U4 & ConvMixer-128/8, $k=9$, $p=4$ & \paramsCMpcuatro & \accCMpcuatro & \tputCMpcuatro & \minCMpcuatro\ min\\
+U4 & ResNet (32-64-128), misma receta & \paramsResNet & \accResNet & \tputResNet & \minResNet\ min\\
+U3 & MLP 3072-1024-512-10 (AdamW) & \paramsMLP & \accMLP & \tputMLP & --\\
+U5 & ELM ($L=\LELM$, $\lambda$ por validación) & \paramsELM & \accELM & -- & --\\
+U5 & ML-ELM (1000-1000 + ELM 3000) & -- & \accMLELM & -- & --\\
+U2 & Seudoinversa ($\lambda=\lamCV$ por CV) & 30\,730 & \accLineal & -- & --\\
+U2 & Perceptrón simple multiclase (promediado) & 30\,730 & \accPerceptron & -- & --\\
+\midrule
+ & \emph{Artículo: ConvMixer-256/8, $k=9$, $p=2$, 200 ép., GPU} & 709\,k & 95,00 & -- & --\\
+\bottomrule
+\end{tabular}}
+\nota{Test de 10\,000 imágenes, evaluado una sola vez. Las CNN usan una semilla; MLP, ELM, ML-ELM y perceptrón, el promedio de 3 semillas. Img/s: inferencia en la misma CPU (8 núcleos) con lotes de 64. Entrenamiento: minutos por corrida, sólo para las CNN, que corrieron solas en la máquina; los modelos clásicos compartieron la CPU con otro proceso y sus tiempos no son comparables. La última fila es el valor publicado (Trockman y Kolter, 2023, Tabla 4).}
+\end{table}
+
+\begin{figure}[h]
+\caption{Curvas de validación de las CNN y exactitud frente a parámetros de todos los modelos}
+\label{fig:curvas}
+\centering
+\includegraphics[width=0.49\textwidth]{f_curvas_validacion.png}\hfill
+\includegraphics[width=0.49\textwidth]{f_comparacion.png}
+\nota{Izquierda: exactitud en las 5\,000 imágenes de validación por época; la línea roja es el valor publicado para ConvMixer-256/8 con 200 épocas. Derecha: exactitud de test frente al número de parámetros (escala logarítmica). Elaboración propia a partir de \texttt{results/*.json}.}
+\end{figure}
+
+\input{../presentacion/discusion_replica.tex}
+
+% =================================================================
+\section{Implicancias y reflexión crítica}
+\textbf{¿Por qué este artículo?} Por tres razones. Primero, forma parte de la bibliografía que trabajé en la
+materia \emph{Sistemas de Inteligencia Artificial} del ITBA (clase de Transformers y ViT), y analizarlo con la
+lente de la Unidad~4 permite unir ambos cursos. Segundo, tiene una pregunta científica clara que admite una réplica
+honesta en hardware modesto, porque el modelo cabe en seis líneas. Tercero, se vincula con mi tesis doctoral
+(evaluación de la inestabilidad espinal con IA sobre tomografías y radiografías), donde la elección entre CNN,
+transformers y modelos híbridos es una decisión de diseño concreta y los conjuntos de datos son chicos.
+
+\textbf{¿En qué otros dominios podría usarse?} En \emph{segmentación de imágenes médicas}, porque la resolución
+interna constante evita la pérdida de detalle del submuestreo y los núcleos grandes capturan contexto anatómico
+amplio (por ejemplo, para la segmentación vertebral). También en microscopía y teledetección (imágenes grandes con
+texturas repetitivas), en señales 1D como ECG o vibraciones (un ConvMixer 1D es inmediato) y en espectrogramas de
+audio. Su eficiencia de datos lo hace atractivo cuando no hay millones de ejemplos.
+
+\textbf{Conocimientos previos necesarios.} Convolución 2D y campo receptivo, convoluciones depthwise y pointwise
+(MobileNet), BatchNorm, conexiones residuales, GELU, AdamW y programas de tasa de aprendizaje, técnicas de
+aumentación (RandAugment, mixup, CutMix) y, para entender la motivación, el mecanismo de autoatención y el ViT.
+De este curso fueron necesarias las unidades 3 (retropropagación y optimización) y 4 (convolución, SGD y
+arquitecturas); la Unidad~1 fue clave para criticar la metodología (validación y test).
+
+\textbf{Implicancias éticas.}
+\begin{itemize}
+  \item \emph{Costo ambiental y desigualdad de acceso}: 90 días-GPU para un punto de exactitud en ImageNet. Esta
+  réplica muestra el otro lado: sin GPU sólo se puede verificar una versión reducida, y la investigación queda
+  concentrada en quien tiene cómputo. Los autores lo reconocen (``\emph{limited compute}'').
+  \item \emph{Reproducibilidad}: publicar el código y una implementación mínima es una buena práctica. Informar una
+  sola corrida sin incertidumbre y ajustar mirando el test va en sentido contrario.
+  \item \emph{Sesgos de los datos}: ImageNet tiene sesgos geográficos y culturales documentados, y un modelo
+  ``mejor'' en ImageNet no es necesariamente mejor para otra población. En aplicaciones médicas eso exige validar
+  externamente en datos locales.
+  \item \emph{Doble uso}: los clasificadores de imágenes eficientes sirven tanto para diagnóstico como para
+  vigilancia masiva.
+\end{itemize}
+
+\textbf{Ventajas y limitaciones frente a otros algoritmos.} La réplica ordena con claridad los algoritmos del
+programa. Los modelos lineales (U2) no superan el \pct{\accLineal} porque una frontera lineal sobre píxeles no
+captura la estructura de las clases. La ELM (U5) mejora con más neuronas aleatorias y se entrena en minutos sin
+gradiente, pero sus rasgos aleatorios no aprovechan la geometría de la imagen. El MLP (U3) tiene 16 veces más
+parámetros que el ConvMixer y queda muy por debajo. Las CNN (U4) dominan porque incorporan localidad y pesos
+compartidos. Entre ellas, el ConvMixer logra la misma exactitud que la ResNet con menos parámetros, pero es bastante
+más lento; esa parte de la conclusión del artículo se mantiene en mi réplica, no así su ventaja en exactitud.
+
+% =================================================================
+\section*{Uso de asistentes de IA}
+El código, las figuras y la redacción se prepararon con ayuda de un asistente de código (Claude Code). Para no
+delegar la verificación se tomaron estas medidas: el conteo de parámetros se comparó con la ec.~(4), el test se
+evaluó una sola vez, todo número citado se genera desde \texttt{results/*.json} con \texttt{src/figuras.py}, y las
+afirmaciones sobre el artículo se contrastaron con su texto.
+
+\renewcommand{\refname}{Referencias}
+\begin{thebibliography}{99}\small
+\setlength{\itemindent}{-1.5em}\setlength{\leftmargin}{1.5em}\setlength{\itemsep}{2pt}
+\bibitem[Ding et~al.(2022)]{replknet} Ding, X., Zhang, X., Han, J. y Ding, G. (2022). Scaling up your kernels to 31x31: Revisiting large kernel design in CNNs. En \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition} (pp. 11963--11975). \url{https://doi.org/10.48550/arXiv.2203.06717}
+\bibitem[Dosovitskiy et~al.(2021)]{vit} Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., Uszkoreit, J. y Houlsby, N. (2021). An image is worth 16x16 words: Transformers for image recognition at scale. En \emph{International Conference on Learning Representations}. \url{https://doi.org/10.48550/arXiv.2010.11929}
+\bibitem[Freund y Schapire(1999)]{freund} Freund, Y. y Schapire, R. E. (1999). Large margin classification using the perceptron algorithm. \emph{Machine Learning, 37}(3), 277--296.
+\bibitem[He et~al.(2016)]{resnet} He, K., Zhang, X., Ren, S. y Sun, J. (2016). Deep residual learning for image recognition. En \emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition} (pp. 770--778). \url{https://doi.org/10.1109/CVPR.2016.90}
+\bibitem[Huang et~al.(2012)]{elmreg} Huang, G.-B., Zhou, H., Ding, X. y Zhang, R. (2012). Extreme learning machine for regression and multiclass classification. \emph{IEEE Transactions on Systems, Man, and Cybernetics, Part B, 42}(2), 513--529.
+\bibitem[Huang et~al.(2006)]{elm} Huang, G.-B., Zhu, Q.-Y. y Siew, C.-K. (2006). Extreme learning machine: Theory and applications. \emph{Neurocomputing, 70}(1--3), 489--501. \url{https://doi.org/10.1016/j.neucom.2005.12.126}
+\bibitem[Kasun et~al.(2013)]{mlelm} Kasun, L. L. C., Zhou, H., Huang, G.-B. y Vong, C. M. (2013). Representational learning with ELMs for big data. \emph{IEEE Intelligent Systems, 28}(6), 31--34.
+\bibitem[Krizhevsky(2009)]{cifar} Krizhevsky, A. (2009). \emph{Learning multiple layers of features from tiny images} [Informe técnico]. University of Toronto. \url{https://www.cs.toronto.edu/~kriz/cifar-10.html}
+\bibitem[Liu et~al.(2021)]{swin} Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S. y Guo, B. (2021). Swin Transformer: Hierarchical vision transformer using shifted windows. En \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision} (pp. 10012--10022). \url{https://doi.org/10.48550/arXiv.2103.14030}
+\bibitem[Liu et~al.(2022)]{convnext} Liu, Z., Mao, H., Wu, C.-Y., Feichtenhofer, C., Darrell, T. y Xie, S. (2022). A ConvNet for the 2020s. En \emph{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition} (pp. 11976--11986). \url{https://doi.org/10.48550/arXiv.2201.03545}
+\bibitem[Loshchilov y Hutter(2019)]{adamw} Loshchilov, I. y Hutter, F. (2019). Decoupled weight decay regularization. En \emph{International Conference on Learning Representations}. \url{https://doi.org/10.48550/arXiv.1711.05101}
+\bibitem[Sandler et~al.(2019)]{sandler} Sandler, M., Baccash, J., Zhmoginov, A. y Howard, A. (2019). Non-discriminative data or weak model? On the relative importance of data and model resolution. En \emph{Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops}.
+\bibitem[Tolstikhin et~al.(2021)]{mixer} Tolstikhin, I., Houlsby, N., Kolesnikov, A., Beyer, L., Zhai, X., Unterthiner, T., Yung, J., Steiner, A., Keysers, D., Uszkoreit, J., Lucic, M. y Dosovitskiy, A. (2021). MLP-Mixer: An all-MLP architecture for vision. \emph{Advances in Neural Information Processing Systems, 34}, 24261--24272. \url{https://doi.org/10.48550/arXiv.2105.01601}
+\bibitem[Touvron, Bojanowski et~al.(2021)]{resmlp} Touvron, H., Bojanowski, P., Caron, M., Cord, M., El-Nouby, A., Grave, E., Joulin, A., Synnaeve, G., Verbeek, J. y Jégou, H. (2021). \emph{ResMLP: Feedforward networks for image classification with data-efficient training} [Preimpresión]. arXiv. \url{https://doi.org/10.48550/arXiv.2105.03404}
+\bibitem[Touvron, Cord et~al.(2021)]{deit} Touvron, H., Cord, M., Douze, M., Massa, F., Sablayrolles, A. y Jégou, H. (2021). Training data-efficient image transformers \& distillation through attention. En \emph{Proceedings of the 38th International Conference on Machine Learning} (pp. 10347--10357). PMLR. \url{https://doi.org/10.48550/arXiv.2012.12877}
+\bibitem[Trockman y Kolter(2023)]{convmixer} Trockman, A. y Kolter, J. Z. (2023). Patches are all you need? \emph{Transactions on Machine Learning Research}. \url{https://doi.org/10.48550/arXiv.2201.09792}
+\end{thebibliography}
+
+\end{document}

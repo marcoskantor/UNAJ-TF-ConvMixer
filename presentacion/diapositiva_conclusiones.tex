@@ -1,0 +1,29 @@
+\begin{frame}{Conclusiones}
+  \begin{columns}[T]
+    \begin{column}{.48\textwidth}
+      \begin{block}{Sobre el artículo}
+        \footnotesize
+        \begin{itemize}
+          \item La idea es fuerte y simple: una CNN con parches y diseño isotrópico compite con los transformers.
+          \item La evidencia es parcial: sin diseño factorial, con recetas distintas entre modelos y una sola corrida
+          por configuración.
+          \item Sí muestra algo valioso: la receta de entrenamiento pesa tanto como la arquitectura.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{.48\textwidth}
+      \begin{block}{Sobre la réplica}
+        \footnotesize
+        \begin{itemize}
+          \item Con la receta oficial en GPU: \accColab\,\% (paper: 95,21\,\%). La implementación es correcta.
+          \item Con poco cómputo: ConvMixer $\approx$ ResNet (\accCMnueve{} vs.\ \accResNet\,\%), pero la ResNet es
+          \ratioTput{} veces más rápida.
+          \item Se reproduce el efecto del parche; el del núcleo grande, no con 10 épocas.
+          \item Modelos del curso: lineal $\approx$ 40 $<$ ELM 47 $<$ MLP 57 $\ll$ CNN 83--85\,\%.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \clave{Replicar no es copiar un número: es seguir el procedimiento, medir lo mismo y poder explicar cada
+  diferencia. Aquí cada brecha tiene una causa concreta: épocas, tamaño, aumentación o la semilla.}
+\end{frame}
