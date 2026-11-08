@@ -20,5 +20,5 @@ __pycache__/
 .ipynb_checkpoints/
 *.pyc
 # guion personal de la exposición (no se publica)
-presentacion/TF_guion.*
+presentacion/TF_guion*
 presentacion/generar_guion.py
