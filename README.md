@@ -7,6 +7,8 @@ Docentes: Dr. Ing. Martín Morales y Dr. Ing. Marcelo Cappelletti
 > Trockman, A. y Kolter, J. Z. (2023). Patches are all you need? *Transactions on Machine Learning Research*.
 > https://doi.org/10.48550/arXiv.2201.09792 — PDF en [`paper/`](paper/) y en <https://arxiv.org/abs/2201.09792> (código oficial: <https://github.com/locuslab/convmixer>).
 
+Consigna del trabajo: [`consigna/Consigna_TF_Aprendizaje_Automatico_UNAJ.pdf`](consigna/Consigna_TF_Aprendizaje_Automatico_UNAJ.pdf)
+
 ## Entregables (los que pide la consigna)
 
 | Entregable | Archivo |
@@ -60,6 +62,7 @@ Réplica en GPU (Google Colab, Entorno de ejecución → T4): subir `src/colab_r
 ## Estructura
 
 ```
+consigna/       consigna del Trabajo Final (cátedra)
 paper/          artículo analizado
 src/            datos.py, modelos.py (ConvMixer, ResNet, MLP, seudoinversa, perceptrón, ELM, ML-ELM),
                 entrenamiento.py, experimentos.py, figuras.py, construir_notebook.py, colab_receta_paper.py
