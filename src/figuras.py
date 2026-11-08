@@ -155,7 +155,13 @@ def fig_comparacion():
     ax.set_xlim(1.5e4, 2e8)
     ax.set_ylim(30, 100)
     # la seudoinversa y el perceptrón caen casi en el mismo punto: una etiqueta arriba y otra abajo, cerca del punto
-    etiquetar(ax, [(p, a, et) for et, p, a, u, c in filas if "(U2)" not in et])
+    # las cuatro CNN caen casi en el mismo punto: sus etiquetas van en una columna a la derecha, con líneas guía
+    cnn_f = sorted([(p, a, et) for et, p, a, u, c in filas if u == "U4"], key=lambda q: -q[1])
+    for k, (p, a, et) in enumerate(cnn_f):
+        ax.annotate(f"{et}: {a:.1f} %".replace(".", ","), (p, a), xytext=(2.2e6, 97 - 5.2 * k), textcoords="data",
+                    fontsize=8.5, color=TINTA, va="center",
+                    ha="left", arrowprops=dict(arrowstyle="-", color="#BBBBBB", lw=0.7, shrinkA=3, shrinkB=5, relpos=(0, 0.5)))
+    etiquetar(ax, [(p, a, et) for et, p, a, u, c in filas if "(U2)" not in et and u != "U4"])
     u2 = sorted([(p, a, et) for et, p, a, u, c in filas if "(U2)" in et], key=lambda q: -q[1])
     for k, (p, a, et) in enumerate(u2):
         ax.annotate(f"{et}: {a:.1f} %".replace(".", ","), (p, a), xytext=(9, 9 if k == 0 else -9), textcoords="offset points",
