@@ -298,7 +298,8 @@ hiperparámetros y las semillas están en el repositorio (\texttt{src/}, \texttt
 \caption{Réplica en CIFAR-10: exactitud de test de los modelos de las cinco unidades}
 \label{tab:replica}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{llrrrr}
+
+\resizebox{\textwidth}{!}{\begin{tabular}{llrrrr}
 \toprule
 Unidad & Modelo & Parámetros & Test (\%) & Img/s (CPU) & Entrenamiento\\
 \midrule
@@ -374,10 +375,10 @@ más lento; esa parte de la conclusión del artículo se mantiene en mi réplica
 
 % =================================================================
 \section*{Uso de asistentes de IA}
-El código, las figuras y la redacción se prepararon con ayuda de un asistente de código (Claude Code). Para no
-delegar la verificación se tomaron estas medidas: el conteo de parámetros se comparó con la ec.~(4), el test se
-evaluó una sola vez, todo número citado se genera desde \texttt{results/*.json} con \texttt{src/figuras.py}, y las
-afirmaciones sobre el artículo se contrastaron con su texto.
+Usé un asistente de IA (Claude Code) como apoyo para la programación y la revisión de la redacción. La
+verificación de los resultados fue mía: comparé el conteo de parámetros con la ec.~(4), evalué el test una sola vez,
+generé todos los números citados desde \texttt{results/*.json} con \texttt{src/figuras.py} y contrasté las
+afirmaciones sobre el artículo con su texto.
 
 \renewcommand{\refname}{Referencias}
 \begin{thebibliography}{99}\small

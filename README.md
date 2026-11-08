@@ -71,6 +71,6 @@ informe/        informe escrito (APA 7)
 
 ## Uso de asistentes de IA
 
-El código y la redacción se prepararon con ayuda de un asistente de código (Claude Code). La verificación fue
-propia: el conteo de parámetros se comparó con la ec. (4) del artículo, el test se evaluó una sola vez y todo
+Usé un asistente de IA (Claude Code) como apoyo para la programación y la revisión de la redacción. La
+verificación de los resultados fue propia: el conteo de parámetros se comparó con la ec. (4) del artículo, el test se evaluó una sola vez y todo
 número citado se genera desde `results/*.json`.
