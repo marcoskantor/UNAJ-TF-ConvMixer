@@ -5,13 +5,13 @@ Marcos David Kantor · Doctorado en Ciencia y Tecnología, Universidad Nacional 
 Docentes: Dr. Ing. Martín Morales y Dr. Ing. Marcelo Cappelletti
 
 > Trockman, A. y Kolter, J. Z. (2023). Patches are all you need? *Transactions on Machine Learning Research*.
-> https://doi.org/10.48550/arXiv.2201.09792 — PDF: <https://arxiv.org/pdf/2201.09792> (código oficial: <https://github.com/locuslab/convmixer>).
+> https://doi.org/10.48550/arXiv.2201.09792 — PDF en [`paper/`](paper/) y en <https://arxiv.org/abs/2201.09792> (código oficial: <https://github.com/locuslab/convmixer>).
 
 ## Entregables (los que pide la consigna)
 
 | Entregable | Archivo |
 |---|---|
-| Artículo científico seleccionado | <https://arxiv.org/abs/2201.09792> (el PDF no se redistribuye en este repositorio) |
+| Artículo científico seleccionado | [`paper/Trockman_Kolter_2023_Patches_Are_All_You_Need.pdf`](paper/Trockman_Kolter_2023_Patches_Are_All_You_Need.pdf) (versión enviada a ICLR 2022; publicado en TMLR 2023) |
 | Presentación para la exposición oral (Beamer, estética UNAJ) | [`presentacion/TF_presentacion.pdf`](presentacion/TF_presentacion.pdf) (fuente `.tex`) |
 | Código de la réplica (notebook) | [`notebooks/replica_convmixer.ipynb`](notebooks/replica_convmixer.ipynb) (ejecutado; copia [`.html`](notebooks/replica_convmixer.html)) |
 | Informe escrito del análisis crítico (APA 7) | [`informe/TF_informe.pdf`](informe/TF_informe.pdf) |
@@ -60,6 +60,7 @@ Réplica en GPU (Google Colab, Entorno de ejecución → T4): subir `src/colab_r
 ## Estructura
 
 ```
+paper/          artículo analizado
 src/            datos.py, modelos.py (ConvMixer, ResNet, MLP, seudoinversa, perceptrón, ELM, ML-ELM),
                 entrenamiento.py, experimentos.py, figuras.py, construir_notebook.py, colab_receta_paper.py
 config.json     todas las semillas e hiperparámetros

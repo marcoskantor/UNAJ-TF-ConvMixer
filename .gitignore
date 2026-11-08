@@ -19,8 +19,6 @@ Trabajo Final Integrador*
 __pycache__/
 .ipynb_checkpoints/
 *.pyc
-# artículo: se enlaza (arXiv), no se redistribuye
-paper/
 # guion personal de la exposición (no se publica)
 presentacion/TF_guion.*
 presentacion/generar_guion.py
