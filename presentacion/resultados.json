@@ -45,9 +45,9 @@
  "difKernelAbs": "2,0",
  "difPatch": "4,0",
  "accColab": "94,5",
- "segColab": "54",
- "epColab": "84",
- "minColab": "76",
+ "segColab": "56",
+ "epColab": "100",
+ "minColab": "93",
  "minEpCPU": "11",
- "colabNota": "en la época 84 de 100 (la sesión gratuita de Colab se cortó antes de terminar; en las últimas épocas la tasa de aprendizaje ya era casi nula)"
+ "colabNota": "al cabo de las 100 épocas"
 }

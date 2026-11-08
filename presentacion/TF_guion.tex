@@ -70,7 +70,7 @@ La ResNet es 3,7 veces más rápida en inferencia. En entrenamiento, 32 minutos 
 Para comprobar que la diferencia era de cómputo y no un error mío, corrí el modelo en una GPU gratuita de Google Colab con la receta oficial de los autores para CIFAR-10. Llegó a 94,5 \%, frente al 95,2 \% del paper para esa configuración. O sea, la implementación es correcta y la brecha es de escala.
 
 \subsection{17. CPU frente a GPU \hfill \normalfont\small [16:10]}
-Esta tabla me parece lo más interesante para discutir. En mi computadora cada época tardó 11 minutos; en la GPU, 54 segundos. En un tiempo parecido, la GPU entrenó un modelo casi tres veces más grande, con muchas más épocas y con la aumentación completa, y ganó 12 puntos con el mismo código.
+Esta tabla me parece lo más interesante para discutir. En mi computadora cada época tardó 11 minutos; en la GPU, 56 segundos. En un tiempo parecido, la GPU entrenó un modelo casi tres veces más grande, con muchas más épocas y con la aumentación completa, y ganó 12 puntos con el mismo código.
 
 La pregunta que dejo para el debate: ¿cuánto de «el mejor modelo» es en realidad «el que más cómputo recibió»? Es la misma crítica que le hago al artículo cuando compara recetas distintas, y tiene un costado ético: sin GPU sólo se puede verificar una versión reducida.
 

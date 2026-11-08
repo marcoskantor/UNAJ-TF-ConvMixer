@@ -37,7 +37,7 @@ Página oficial: <https://www.cs.toronto.edu/~kriz/cifar-10.html> — archivo us
 | U2 | Seudoinversa (λ por validación cruzada de 5 pliegues) | 30 730 | 40,7 % |
 | U5 | ML-ELM | — | 40,4 % |
 | U2 | Perceptrón simple multiclase | 30 730 | 40,3 % |
-| GPU | ConvMixer-256/8, k=5, p=2, receta oficial, Colab T4 | 594 186 | ver `results/colab_gpu*` |
+| GPU | ConvMixer-256/8, k=5, p=2, receta oficial, 100 épocas, Colab T4 (~93 min) | 594 186 | **94,5 %** |
 
 CNN: 10 épocas en CPU (8 núcleos), una semilla. Modelos no convolucionales: promedio de 3 semillas.
 Publicado: 95,0 % (256/8, k=9, p=2, 200 épocas) y 95,21 % (k=5, p=2).
