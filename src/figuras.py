@@ -357,7 +357,7 @@ def leer_kaggle():
         return None
     d = json.loads(f.read_text(encoding="utf8"))
     return {"acc": [h["acc_test"] for h in d["historia"]], "final": d["acc_test_final"], "epocas": d["args"]["epochs"],
-            "seg": np.mean([h["segundos_epoca"] for h in d["historia"]]), "minutos": d["minutos"]}
+            "seg": d["segundos_epoca_media"], "minutos": d["minutos"]}
 
 
 def fig_colab():
@@ -438,7 +438,7 @@ def resultados():
         R["accColab"], R["segColab"], R["colabNota"], R["epColab"], R["minColab"], R["minEpCPU"] = "--", "--", "", "--", "--", "--"
     k = leer_kaggle()
     if k:
-        R["accKaggle"] = fmt(100 * k["final"])
+        R["accKaggle"] = fmt(100 * k["final"], 2)
         R["segKaggle"] = f"{k['seg']:.0f}"
         R["epKaggle"] = str(len(k["acc"]))
         R["minKaggle"] = f"{k['minutos']:.0f}"

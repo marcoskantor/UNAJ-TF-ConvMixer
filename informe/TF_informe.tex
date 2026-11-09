@@ -61,7 +61,8 @@ presupuesto de cómputo unas 20 veces menor que el del Apéndice~B. En la répli
 \pct{\accCMnueve} de exactitud de test en \epocasCNN{} épocas, prácticamente igual que una ResNet entrenada con la
 misma receta (\pct{\accResNet}), que resulta \ratioTput{} veces más rápida. Se reprodujo el efecto del tamaño de
 parche, pero no el del tamaño de núcleo: con tan pocas épocas, el núcleo chico rindió más. Con la receta oficial de los
-autores en una GPU de Colab, el modelo llegó a \pct{\accColab}, cerca del \pct{95,21} publicado. Para ubicar
+autores en una GPU de Colab, el modelo llegó a \pct{\accColab}; con la receta del artículo (200 épocas, mixup y CutMix) en
+una GPU de Kaggle, a \pct{\accKaggle}, que iguala el \pct{95,21} publicado (una sola semilla). Para ubicar
 el modelo en el programa del curso, lo comparé además con una regresión lineal por seudoinversa
 (\pct{\accLineal}), el perceptrón simple (\pct{\accPerceptron}), un perceptrón multicapa (\pct{\accMLP}) y
 máquinas de aprendizaje extremo (ELM \pct{\accELM}; ML-ELM \pct{\accMLELM}).

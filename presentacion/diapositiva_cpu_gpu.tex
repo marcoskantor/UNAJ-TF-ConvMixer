@@ -1,29 +1,30 @@
-\begin{frame}{CPU frente a GPU: el cómputo es la variable que más pesa}
+\begin{frame}{CPU frente a GPU: el cómputo y la receta pesan más que la arquitectura}
   \centering\footnotesize
-  \resizebox{\linewidth}{!}{\begin{tabular}{lccc}
+  \resizebox{\linewidth}{!}{\begin{tabular}{lcccc}
     \toprule
-     & \textbf{Mi computadora (CPU)} & \textbf{Google Colab (GPU T4)} & \textbf{Artículo (GPU)}\\
+     & \textbf{CPU propia} & \textbf{Colab (T4)} & \textbf{Kaggle (T4)} & \textbf{Artículo (GPU)}\\
     \midrule
-    Modelo & ConvMixer-128/8, $k$=9, $p$=2 & ConvMixer-256/8, $k$=5, $p$=2 & 256/8, $k$=9 o 5, $p$=2\\
-    Parámetros & 223\,k & 594\,k & 709\,k / 594\,k\\
-    Aumentación & escalado, recorte, espejo & + RandAugment, ColorJitter, borrado & \texttt{timm} + mixup, CutMix\\
-    Épocas & \epocasCNN & \epColab & 200\\
-    Tiempo por época & \minEpCPU{} min & \segColab{} s & --\\
-    Tiempo total & \minCMnueve{} min & \minColab{} min & --\\
-    \rowcolor{unajgris}\textbf{Exactitud de test} & \textbf{\accCMnueve\,\%} & \textbf{\accColab\,\%} & \textbf{95,0 / 95,21\,\%}\\
+    Modelo & 128/8, $k$=9, $p$=2 & 256/8, $k$=5, $p$=2 & 256/8, $k$=5, $p$=2 & 256/8, $p$=2\\
+    Parámetros & 223\,k & 594\,k & 594\,k & 709\,k / 594\,k\\
+    Receta & escalado, recorte, espejo & + RandAugment, borrado & + mixup, CutMix, wd 0 & \texttt{timm} + mixup, CutMix\\
+    Épocas & \epocasCNN & \epColab & \epKaggle & 200\\
+    Tiempo por época & \minEpCPU{} min & \segColab{} s & \segKaggle{} s & --\\
+    Tiempo total & \minCMnueve{} min & \minColab{} min & \minKaggle{} min & --\\
+    \rowcolor{unajgris}\textbf{Exactitud de test} & \textbf{\accCMnueve\,\%} & \textbf{\accColab\,\%} & \textbf{\accKaggle\,\%} & \textbf{95,0 / 95,21\,\%}\\
     \bottomrule
   \end{tabular}}
   \vspace{6pt}
   \begin{columns}[T]
     \begin{column}{.48\textwidth}\footnotesize
-      \textbf{Lectura}: en un tiempo parecido (entre 1,5 y 2 horas), la GPU entrena un modelo 2,7 veces más grande,
-      con muchas más épocas y con aumentación completa: \textbf{12 puntos más} con el mismo código.
+      \textbf{Lectura}: con la receta del artículo (200 épocas, mixup, CutMix) la réplica \textbf{iguala} el valor
+      publicado: \accKaggle\,\% frente a 95,21\,\%. Con una sola semilla, los 0,27 puntos de diferencia no
+      son una mejora demostrada.
     \end{column}
     \begin{column}{.48\textwidth}\footnotesize
-      \textbf{Para el debate}: ¿cuánto de ``el mejor modelo'' es en realidad ``el que más cómputo recibió''? Es la
-      misma crítica que le hago al artículo cuando compara recetas distintas, y conecta con la ética: sin GPU sólo
-      se verifica una versión reducida.
+      \textbf{Para el debate}: Kaggle fue más del doble de rápido por época con la misma GPU (no sé a qué se debe).
+      Colab nos negó la GPU por límite de uso y cortó una corrida en la época 84. ¿Cuánto de ``el mejor modelo'' es
+      ``el que más cómputo recibió''?
     \end{column}
   \end{columns}
-  \fuente{\textit{Nota.} Una corrida por configuración. Colab: se informa la última época, \colabNota. Valores del artículo: Trockman y Kolter (2023, Tabla 4). Elaboración propia.}
+  \fuente{\textit{Nota.} Una corrida por configuración. Se informa la última época. Valores del artículo: Trockman y Kolter (2023, Tabla 4). Elaboración propia.}
 \end{frame}

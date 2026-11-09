@@ -20,11 +20,13 @@ GPU gratuita de Google Colab (Tesla T4) con la receta del repositorio oficial de
 (\url{https://github.com/locuslab/convmixer-cifar10}): ConvMixer-256/8 con $k=5$ y $p=2$, RandAugment, ColorJitter,
 \emph{random erasing} y 100 épocas, a unos \segColab{} segundos por época. Esa corrida llegó a \pct{\accColab} en test
 \colabNota{} (Figura~\ref{fig:colab}). Una primera corrida idéntica, que se cortó en la época 84 al perderse la sesión gratuita, ya había llegado a \pct{94,50} (registro en \texttt{results/colab\_gpu\_corrida1\_log.txt}): las dos corridas coinciden. El artículo informa \pct{95,21} para esa configuración con 200 épocas. Es decir: con la receta
-completa la implementación queda a menos de un punto del valor publicado, y la diferencia de la réplica en CPU se
-explica por la escala del experimento.
+del repositorio la implementación queda a menos de un punto del valor publicado. Para cerrar esa brecha corrí después,
+en una GPU de Kaggle (Colab ya no nos daba GPU), la receta del artículo: 200 épocas, mixup, CutMix y sin \emph{weight
+decay}. Llegó a \pct{\accKaggle} en la última época (Figura~\ref{fig:colab}), frente al \pct{95,21} publicado. La
+diferencia de la réplica en CPU se explica, entonces, por la escala del experimento.
 
 \begin{figure}[h]
-\caption{Réplica en GPU con la receta oficial de los autores (Google Colab, Tesla T4)}
+\caption{Réplica en GPU: receta del repositorio (Colab, 100 épocas) y receta del artículo (Kaggle, 200 épocas)}
 \label{fig:colab}
 \centering
 \includegraphics[width=0.62\textwidth]{f_colab.png}

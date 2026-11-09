@@ -38,10 +38,22 @@ Página oficial: <https://www.cs.toronto.edu/~kriz/cifar-10.html> — archivo us
 | U2 | Seudoinversa (λ por validación cruzada de 5 pliegues) | 30 730 | 40,7 % |
 | U5 | ML-ELM | — | 40,4 % |
 | U2 | Perceptrón simple multiclase | 30 730 | 40,3 % |
-| GPU | ConvMixer-256/8, k=5, p=2, receta oficial, 100 épocas, Colab T4 (~93 min) | 594 186 | **94,5 %** |
+| GPU | ConvMixer-256/8, k=5, p=2, receta del repositorio, 100 épocas, Colab T4 (~93 min, ~56 s/época) | 594 186 | **94,5 %** |
+| GPU | ConvMixer-256/8, k=5, p=2, receta del artículo (200 épocas, mixup + CutMix, wd 0), Kaggle T4 (~85 min, ~25 s/época) | 594 186 | **95,48 %** |
 
 CNN: 10 épocas en CPU (8 núcleos), una semilla. Modelos no convolucionales: promedio de 3 semillas.
 Publicado: 95,0 % (256/8, k=9, p=2, 200 épocas) y 95,21 % (k=5, p=2).
+
+**Sobre la réplica en GPU (todo tal cual pasó).** Una sola semilla por configuración, y se informa la última época
+(no la mejor). La primera corrida de Colab se cortó en la época 84 (94,50 %) al perderse la sesión gratuita (registro en
+`results/colab_gpu_corrida1_log.txt`); la segunda terminó las 100 épocas (94,47 %). Después Colab gratuito nos negó la GPU
+por límite de uso y la receta del artículo (200 épocas, mixup y CutMix con alfas 0,8 y 1,0 —los valores por defecto de
+timm, el artículo no publica los suyos—, sin *weight decay*) se corrió en Kaggle: **95,48 %**, frente al 95,21 % publicado.
+Esos 0,27 puntos están dentro del azar esperable con una semilla, así que la réplica *iguala* el valor publicado pero no
+demuestra superarlo; además, como cambiaron a la vez épocas, mixup/CutMix y *weight decay*, no se puede decir cuál pesó más.
+En Kaggle cada época fue más del doble de rápida (~25 s frente a ~56 s) con la misma GPU, sin una causa verificada.
+El resultado está en `results/kaggle_200ep.json` (transcripto del registro del notebook: exactitud de test por época y
+tiempos; no se guardó la exactitud de entrenamiento por época, que con mixup/CutMix no es comparable).
 
 ## Cómo reproducir
 
@@ -60,7 +72,7 @@ Réplica en GPU (Google Colab, Entorno de ejecución → T4): subir `src/colab_r
 `!python colab_receta_paper.py --epochs 100 --conv-ks 5` (~1 h 30 min).
 
 Receta del artículo (Apéndice B: 200 épocas, mixup + CutMix, sin weight decay; publicado 95,21 %), con
-checkpoint en Drive para reanudar si se corta la sesión (~3 h 10 min en T4):
+checkpoint en Drive para reanudar si se corta la sesión (en Colab, ~3 h 10 min estimadas a ~56 s/época; en Kaggle tardó ~85 min):
 
 ```python
 from google.colab import drive; drive.mount('/content/drive')

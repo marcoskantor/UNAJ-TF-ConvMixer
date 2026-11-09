@@ -87,20 +87,19 @@
   \fuente{\textit{Nota.} Lote de 64 imágenes, misma CPU de 8 núcleos, eje logarítmico. Elaboración propia.}
 \end{frame}
 
-\begin{frame}{¿Y si le doy el cómputo del paper? Réplica en GPU (Google Colab)}
+\begin{frame}{¿Y si le doy el cómputo del paper? Réplica en GPU (Colab y Kaggle)}
   \begin{columns}[T]
     \begin{column}{.58\textwidth}
       \centering
       \includegraphics[width=\linewidth,height=0.66\textheight,keepaspectratio]{f_colab.png}
     \end{column}
     \begin{column}{.39\textwidth}
-      \bignum{\accColab\,\%}{ConvMixer-256/8, $k=5$, $p=2$, receta oficial de los autores\\(paper: 95,21\,\%)}
+      \bignum{\accKaggle\,\%}{ConvMixer-256/8, $k=5$, $p=2$, receta del artículo, 200 épocas (Kaggle)\\(paper: 95,21\,\%; Colab, 100 épocas: \accColab\,\%)}
       \vspace{6pt}
-      {\footnotesize GPU T4 gratuita, unos \segColab{} s por época con RandAugment, ColorJitter y \emph{random
-      erasing}. La brecha de la réplica en CPU se explica por la escala, no por la implementación.}
+      {\footnotesize GPU T4 gratuita, unos \segKaggle{} s por época. Una sola semilla: la réplica iguala el valor publicado, no lo supera con certeza. La brecha de la réplica en CPU se explica por la escala.}
     \end{column}
   \end{columns}
-  \fuente{\textit{Nota.} Receta de \texttt{github.com/locuslab/convmixer-cifar10} (Trockman y Kolter, 2023). Se informa la última época, \colabNota.}
+  \fuente{\textit{Nota.} Receta de \texttt{github.com/locuslab/convmixer-cifar10} (Trockman y Kolter, 2023). Se informa la última época. Colab: \colabNota; Kaggle: 200 épocas, mixup, CutMix y wd 0.}
 \end{frame}
 
 \input{diapositiva_cpu_gpu.tex}

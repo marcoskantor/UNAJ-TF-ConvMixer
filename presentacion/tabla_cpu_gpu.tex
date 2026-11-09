@@ -1,26 +1,45 @@
 \begin{table}[h]\small
-\caption{La misma metodología con distinto cómputo: CPU propia, GPU de Colab y artículo}
+\caption{La misma metodología con distinto cómputo: CPU propia, GPU de Colab, GPU de Kaggle y artículo}
 \label{tab:cpugpu}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{lccc}
+\resizebox{\textwidth}{!}{\begin{tabular}{lcccc}
 \toprule
- & Mi computadora (CPU, 8 núcleos) & Google Colab (GPU Tesla T4) & Artículo (GPU)\\
+ & CPU propia (8 núcleos) & Google Colab (T4) & Kaggle (T4) & Artículo (GPU)\\
 \midrule
-Modelo & ConvMixer-128/8, $k=9$, $p=2$ & ConvMixer-256/8, $k=5$, $p=2$ & ConvMixer-256/8, $k=9$ o $5$, $p=2$\\
-Parámetros & 223\,370 & 594\,186 & 709\,k / 594\,k\\
-Aumentación & escalado, recorte y espejo & + RandAugment, ColorJitter, \emph{random erasing} & \texttt{timm} + mixup y CutMix\\
-Épocas & \epocasCNN & \epColab & 200\\
-Tiempo por época & \minEpCPU{} min & \segColab{} s & no informado\\
-Tiempo total & \minCMnueve{} min & \minColab{} min & no informado\\
-Exactitud de test & \pct{\accCMnueve} & \pct{\accColab} & \pct{95,0} / \pct{95,21}\\
+Modelo & 128/8, $k=9$, $p=2$ & 256/8, $k=5$, $p=2$ & 256/8, $k=5$, $p=2$ & 256/8, $k=9$ o $5$, $p=2$\\
+Parámetros & 223\,370 & 594\,186 & 594\,186 & 709\,k / 594\,k\\
+Aumentación & escalado, recorte y espejo & + RandAugment, ColorJitter, borrado & Colab + mixup y CutMix & \texttt{timm} + mixup y CutMix\\
+Weight decay & 0,01 & 0,005 & 0 & 0 (Tabla 4)\\
+Épocas & \epocasCNN & \epColab & \epKaggle & 200\\
+Tiempo por época & \minEpCPU{} min & \segColab{} s & \segKaggle{} s & no informado\\
+Tiempo total & \minCMnueve{} min & \minColab{} min & \minKaggle{} min & no informado\\
+Exactitud de test & \pct{\accCMnueve} & \pct{\accColab} & \pct{\accKaggle} & \pct{95,0} / \pct{95,21}\\
 \bottomrule
 \end{tabular}}
-\nota{Una corrida por configuración. Colab: se informa la última época, \colabNota. Valores del artículo: Trockman y Kolter (2023, Tabla 4).}
+\nota{Una corrida por configuración, sin repetir semillas. Colab y Kaggle: se informa la última época, sin elegir la mejor; ambas con una GPU Tesla T4 (en Kaggle la sesión tenía dos, pero el script usa una). Colab entrenó \colabNota. Valores del artículo: Trockman y Kolter (2023, Tabla 4). Antes de la corrida de Colab que se informa hubo otra idéntica que se cortó en la época 84 (94,50 \%); el registro está en \texttt{results/}.}
 \end{table}
 
-La Tabla~\ref{tab:cpugpu} resume la comparación que me parece más interesante para discutir. En un tiempo de reloj
-parecido, la GPU entrenó un modelo 2,7 veces más grande, con muchas más épocas y con la aumentación completa, y
-ganó unos 12 puntos con el mismo código. Esto relativiza las comparaciones entre arquitecturas: una parte de lo que
-se atribuye a ``un modelo mejor'' corresponde a ``un modelo que recibió más cómputo y una receta más trabajada''. Es
-justamente la crítica que se le puede hacer al artículo cuando compara contra números de otros trabajos.
+La Tabla~\ref{tab:cpugpu} resume la comparación que me parece más interesante para discutir. Hay tres lecturas.
+Primero, en un tiempo de reloj parecido (entre 1,5 y 2 horas), la GPU entrenó un modelo 2,7 veces más grande, con
+muchas más épocas y con la aumentación completa, y ganó unos 12 puntos con el mismo código. Esto relativiza las
+comparaciones entre arquitecturas: una parte de lo que se atribuye a ``un modelo mejor'' corresponde a ``un modelo que
+recibió más cómputo y una receta más trabajada''. Es justamente la crítica que se le puede hacer al artículo cuando
+compara contra números de otros trabajos.
 
+Segundo, la receta cuenta. Pasar de la receta del repositorio (100 épocas, \pct{\accColab}) a la del artículo (200
+épocas, mixup, CutMix y sin \emph{weight decay}) subió la exactitud de \pct{\accColab} a \pct{\accKaggle}, es decir, un
+punto, y quedó 0,27 puntos por encima del \pct{95,21} publicado. Con una sola semilla por configuración, esa
+diferencia con el artículo está dentro de lo que cabe esperar por azar (del orden de 0,2 a 0,3 puntos), así que lo
+prudente es decir que la réplica \emph{iguala} el resultado publicado y no que lo supera. Tampoco puedo separar
+cuánto aportó cada cambio (las épocas, mixup y CutMix, o el \emph{weight decay}), porque cambié todo junto; sólo el
+artículo muestra que quitar mixup y CutMix casi no cambia el resultado (Tabla 3), lo que sugiere que el grueso viene de
+las épocas.
+
+Tercero, el costo. Con la misma GPU, la corrida de Kaggle tardó unos \minKaggle{} minutos (\segKaggle{} s por época)
+y la de Colab unos \minColab{} minutos con la mitad de las épocas (\segColab{} s por época): en Kaggle cada época
+fue más del doble de rápida. No sé a qué atribuirlo con certeza: la GPU es la misma (Tesla T4), pero cambió la
+cantidad de procesos que cargan y aumentan las imágenes (4 en Kaggle y 2 en Colab) y, con RandAugment, esa parte corre
+en la CPU y puede ser el cuello de botella. En la práctica, Colab gratuito nos negó la GPU por límite de uso a la
+mañana siguiente y había cortado una corrida en la época 84; Kaggle ofrece unas 30 horas semanales y permite dejar la
+corrida en segundo plano sin tener la pestaña abierta, lo que la hizo más cómoda y confiable para un entrenamiento
+largo.

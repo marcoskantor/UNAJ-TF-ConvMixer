@@ -49,5 +49,9 @@
  "epColab": "100",
  "minColab": "93",
  "minEpCPU": "11",
- "colabNota": "al cabo de las 100 épocas"
+ "colabNota": "al cabo de las 100 épocas",
+ "accKaggle": "95,48",
+ "segKaggle": "25",
+ "epKaggle": "200",
+ "minKaggle": "85"
 }

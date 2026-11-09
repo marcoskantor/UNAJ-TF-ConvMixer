@@ -1,0 +1,832 @@
+{
+ "nombre": "ConvMixer-256/8-k5-p2",
+ "args": {
+  "name": "ConvMixer-256/8-k5-p2",
+  "batch_size": 512,
+  "scale": 1.0,
+  "reprob": 0.2,
+  "ra_m": 12,
+  "ra_n": 2,
+  "jitter": 0.2,
+  "hdim": 256,
+  "depth": 8,
+  "psize": 2,
+  "conv_ks": 5,
+  "wd": 0.0,
+  "epochs": 200,
+  "lr_max": 0.05,
+  "workers": 4,
+  "mixup": 0.8,
+  "cutmix": 1.0
+ },
+ "parametros": 594186,
+ "gpu": "Tesla T4 (Kaggle, sesión con 2 T4; el script usa una sola)",
+ "acc_test_final": 0.9548,
+ "minutos": 84.599611834685,
+ "segundos_epoca_media": 25.379883550405502,
+ "acc_test_max_no_informar": 0.9554,
+ "historia": [
+  {
+   "epoca": 1,
+   "acc_test": 0.4283
+  },
+  {
+   "epoca": 2,
+   "acc_test": 0.5586
+  },
+  {
+   "epoca": 3,
+   "acc_test": 0.6421
+  },
+  {
+   "epoca": 4,
+   "acc_test": 0.6986
+  },
+  {
+   "epoca": 5,
+   "acc_test": 0.7394
+  },
+  {
+   "epoca": 6,
+   "acc_test": 0.7518
+  },
+  {
+   "epoca": 7,
+   "acc_test": 0.779
+  },
+  {
+   "epoca": 8,
+   "acc_test": 0.7881
+  },
+  {
+   "epoca": 9,
+   "acc_test": 0.8035
+  },
+  {
+   "epoca": 10,
+   "acc_test": 0.8153
+  },
+  {
+   "epoca": 11,
+   "acc_test": 0.8273
+  },
+  {
+   "epoca": 12,
+   "acc_test": 0.8388
+  },
+  {
+   "epoca": 13,
+   "acc_test": 0.823
+  },
+  {
+   "epoca": 14,
+   "acc_test": 0.84
+  },
+  {
+   "epoca": 15,
+   "acc_test": 0.837
+  },
+  {
+   "epoca": 16,
+   "acc_test": 0.8366
+  },
+  {
+   "epoca": 17,
+   "acc_test": 0.8505
+  },
+  {
+   "epoca": 18,
+   "acc_test": 0.8438
+  },
+  {
+   "epoca": 19,
+   "acc_test": 0.8591
+  },
+  {
+   "epoca": 20,
+   "acc_test": 0.8468
+  },
+  {
+   "epoca": 21,
+   "acc_test": 0.8669
+  },
+  {
+   "epoca": 22,
+   "acc_test": 0.8672
+  },
+  {
+   "epoca": 23,
+   "acc_test": 0.8616
+  },
+  {
+   "epoca": 24,
+   "acc_test": 0.8644
+  },
+  {
+   "epoca": 25,
+   "acc_test": 0.8695
+  },
+  {
+   "epoca": 26,
+   "acc_test": 0.8711
+  },
+  {
+   "epoca": 27,
+   "acc_test": 0.8481
+  },
+  {
+   "epoca": 28,
+   "acc_test": 0.8706
+  },
+  {
+   "epoca": 29,
+   "acc_test": 0.839
+  },
+  {
+   "epoca": 30,
+   "acc_test": 0.8849
+  },
+  {
+   "epoca": 31,
+   "acc_test": 0.8796
+  },
+  {
+   "epoca": 32,
+   "acc_test": 0.8614
+  },
+  {
+   "epoca": 33,
+   "acc_test": 0.8909
+  },
+  {
+   "epoca": 34,
+   "acc_test": 0.8742
+  },
+  {
+   "epoca": 35,
+   "acc_test": 0.8465
+  },
+  {
+   "epoca": 36,
+   "acc_test": 0.8763
+  },
+  {
+   "epoca": 37,
+   "acc_test": 0.8768
+  },
+  {
+   "epoca": 38,
+   "acc_test": 0.8864
+  },
+  {
+   "epoca": 39,
+   "acc_test": 0.8896
+  },
+  {
+   "epoca": 40,
+   "acc_test": 0.8835
+  },
+  {
+   "epoca": 41,
+   "acc_test": 0.8843
+  },
+  {
+   "epoca": 42,
+   "acc_test": 0.8867
+  },
+  {
+   "epoca": 43,
+   "acc_test": 0.8856
+  },
+  {
+   "epoca": 44,
+   "acc_test": 0.8833
+  },
+  {
+   "epoca": 45,
+   "acc_test": 0.8824
+  },
+  {
+   "epoca": 46,
+   "acc_test": 0.8961
+  },
+  {
+   "epoca": 47,
+   "acc_test": 0.8866
+  },
+  {
+   "epoca": 48,
+   "acc_test": 0.8854
+  },
+  {
+   "epoca": 49,
+   "acc_test": 0.8893
+  },
+  {
+   "epoca": 50,
+   "acc_test": 0.8986
+  },
+  {
+   "epoca": 51,
+   "acc_test": 0.8791
+  },
+  {
+   "epoca": 52,
+   "acc_test": 0.8892
+  },
+  {
+   "epoca": 53,
+   "acc_test": 0.9056
+  },
+  {
+   "epoca": 54,
+   "acc_test": 0.8963
+  },
+  {
+   "epoca": 55,
+   "acc_test": 0.8997
+  },
+  {
+   "epoca": 56,
+   "acc_test": 0.9006
+  },
+  {
+   "epoca": 57,
+   "acc_test": 0.89
+  },
+  {
+   "epoca": 58,
+   "acc_test": 0.8844
+  },
+  {
+   "epoca": 59,
+   "acc_test": 0.9079
+  },
+  {
+   "epoca": 60,
+   "acc_test": 0.8904
+  },
+  {
+   "epoca": 61,
+   "acc_test": 0.8884
+  },
+  {
+   "epoca": 62,
+   "acc_test": 0.9035
+  },
+  {
+   "epoca": 63,
+   "acc_test": 0.889
+  },
+  {
+   "epoca": 64,
+   "acc_test": 0.9078
+  },
+  {
+   "epoca": 65,
+   "acc_test": 0.9007
+  },
+  {
+   "epoca": 66,
+   "acc_test": 0.9016
+  },
+  {
+   "epoca": 67,
+   "acc_test": 0.8861
+  },
+  {
+   "epoca": 68,
+   "acc_test": 0.8965
+  },
+  {
+   "epoca": 69,
+   "acc_test": 0.9174
+  },
+  {
+   "epoca": 70,
+   "acc_test": 0.9085
+  },
+  {
+   "epoca": 71,
+   "acc_test": 0.8974
+  },
+  {
+   "epoca": 72,
+   "acc_test": 0.9046
+  },
+  {
+   "epoca": 73,
+   "acc_test": 0.9035
+  },
+  {
+   "epoca": 74,
+   "acc_test": 0.8953
+  },
+  {
+   "epoca": 75,
+   "acc_test": 0.9104
+  },
+  {
+   "epoca": 76,
+   "acc_test": 0.8949
+  },
+  {
+   "epoca": 77,
+   "acc_test": 0.9128
+  },
+  {
+   "epoca": 78,
+   "acc_test": 0.9077
+  },
+  {
+   "epoca": 79,
+   "acc_test": 0.9029
+  },
+  {
+   "epoca": 80,
+   "acc_test": 0.8986
+  },
+  {
+   "epoca": 81,
+   "acc_test": 0.905
+  },
+  {
+   "epoca": 82,
+   "acc_test": 0.9082
+  },
+  {
+   "epoca": 83,
+   "acc_test": 0.9033
+  },
+  {
+   "epoca": 84,
+   "acc_test": 0.9099
+  },
+  {
+   "epoca": 85,
+   "acc_test": 0.9049
+  },
+  {
+   "epoca": 86,
+   "acc_test": 0.9228
+  },
+  {
+   "epoca": 87,
+   "acc_test": 0.915
+  },
+  {
+   "epoca": 88,
+   "acc_test": 0.9153
+  },
+  {
+   "epoca": 89,
+   "acc_test": 0.9149
+  },
+  {
+   "epoca": 90,
+   "acc_test": 0.9083
+  },
+  {
+   "epoca": 91,
+   "acc_test": 0.9176
+  },
+  {
+   "epoca": 92,
+   "acc_test": 0.9248
+  },
+  {
+   "epoca": 93,
+   "acc_test": 0.9182
+  },
+  {
+   "epoca": 94,
+   "acc_test": 0.9199
+  },
+  {
+   "epoca": 95,
+   "acc_test": 0.9144
+  },
+  {
+   "epoca": 96,
+   "acc_test": 0.9204
+  },
+  {
+   "epoca": 97,
+   "acc_test": 0.919
+  },
+  {
+   "epoca": 98,
+   "acc_test": 0.9269
+  },
+  {
+   "epoca": 99,
+   "acc_test": 0.9252
+  },
+  {
+   "epoca": 100,
+   "acc_test": 0.924
+  },
+  {
+   "epoca": 101,
+   "acc_test": 0.9099
+  },
+  {
+   "epoca": 102,
+   "acc_test": 0.9232
+  },
+  {
+   "epoca": 103,
+   "acc_test": 0.9256
+  },
+  {
+   "epoca": 104,
+   "acc_test": 0.9244
+  },
+  {
+   "epoca": 105,
+   "acc_test": 0.9335
+  },
+  {
+   "epoca": 106,
+   "acc_test": 0.9337
+  },
+  {
+   "epoca": 107,
+   "acc_test": 0.9228
+  },
+  {
+   "epoca": 108,
+   "acc_test": 0.9246
+  },
+  {
+   "epoca": 109,
+   "acc_test": 0.9318
+  },
+  {
+   "epoca": 110,
+   "acc_test": 0.9344
+  },
+  {
+   "epoca": 111,
+   "acc_test": 0.9359
+  },
+  {
+   "epoca": 112,
+   "acc_test": 0.9295
+  },
+  {
+   "epoca": 113,
+   "acc_test": 0.9381
+  },
+  {
+   "epoca": 114,
+   "acc_test": 0.9374
+  },
+  {
+   "epoca": 115,
+   "acc_test": 0.9331
+  },
+  {
+   "epoca": 116,
+   "acc_test": 0.9379
+  },
+  {
+   "epoca": 117,
+   "acc_test": 0.9402
+  },
+  {
+   "epoca": 118,
+   "acc_test": 0.9351
+  },
+  {
+   "epoca": 119,
+   "acc_test": 0.9392
+  },
+  {
+   "epoca": 120,
+   "acc_test": 0.9401
+  },
+  {
+   "epoca": 121,
+   "acc_test": 0.9396
+  },
+  {
+   "epoca": 122,
+   "acc_test": 0.9362
+  },
+  {
+   "epoca": 123,
+   "acc_test": 0.9423
+  },
+  {
+   "epoca": 124,
+   "acc_test": 0.941
+  },
+  {
+   "epoca": 125,
+   "acc_test": 0.9323
+  },
+  {
+   "epoca": 126,
+   "acc_test": 0.9407
+  },
+  {
+   "epoca": 127,
+   "acc_test": 0.9387
+  },
+  {
+   "epoca": 128,
+   "acc_test": 0.9416
+  },
+  {
+   "epoca": 129,
+   "acc_test": 0.9414
+  },
+  {
+   "epoca": 130,
+   "acc_test": 0.943
+  },
+  {
+   "epoca": 131,
+   "acc_test": 0.9389
+  },
+  {
+   "epoca": 132,
+   "acc_test": 0.9423
+  },
+  {
+   "epoca": 133,
+   "acc_test": 0.9442
+  },
+  {
+   "epoca": 134,
+   "acc_test": 0.9464
+  },
+  {
+   "epoca": 135,
+   "acc_test": 0.9464
+  },
+  {
+   "epoca": 136,
+   "acc_test": 0.9479
+  },
+  {
+   "epoca": 137,
+   "acc_test": 0.9472
+  },
+  {
+   "epoca": 138,
+   "acc_test": 0.9472
+  },
+  {
+   "epoca": 139,
+   "acc_test": 0.9459
+  },
+  {
+   "epoca": 140,
+   "acc_test": 0.9472
+  },
+  {
+   "epoca": 141,
+   "acc_test": 0.9433
+  },
+  {
+   "epoca": 142,
+   "acc_test": 0.9459
+  },
+  {
+   "epoca": 143,
+   "acc_test": 0.9487
+  },
+  {
+   "epoca": 144,
+   "acc_test": 0.9463
+  },
+  {
+   "epoca": 145,
+   "acc_test": 0.948
+  },
+  {
+   "epoca": 146,
+   "acc_test": 0.9505
+  },
+  {
+   "epoca": 147,
+   "acc_test": 0.9488
+  },
+  {
+   "epoca": 148,
+   "acc_test": 0.9488
+  },
+  {
+   "epoca": 149,
+   "acc_test": 0.952
+  },
+  {
+   "epoca": 150,
+   "acc_test": 0.9535
+  },
+  {
+   "epoca": 151,
+   "acc_test": 0.9504
+  },
+  {
+   "epoca": 152,
+   "acc_test": 0.9509
+  },
+  {
+   "epoca": 153,
+   "acc_test": 0.952
+  },
+  {
+   "epoca": 154,
+   "acc_test": 0.9526
+  },
+  {
+   "epoca": 155,
+   "acc_test": 0.9516
+  },
+  {
+   "epoca": 156,
+   "acc_test": 0.9535
+  },
+  {
+   "epoca": 157,
+   "acc_test": 0.9538
+  },
+  {
+   "epoca": 158,
+   "acc_test": 0.9525
+  },
+  {
+   "epoca": 159,
+   "acc_test": 0.9524
+  },
+  {
+   "epoca": 160,
+   "acc_test": 0.9538
+  },
+  {
+   "epoca": 161,
+   "acc_test": 0.9545
+  },
+  {
+   "epoca": 162,
+   "acc_test": 0.9536
+  },
+  {
+   "epoca": 163,
+   "acc_test": 0.9524
+  },
+  {
+   "epoca": 164,
+   "acc_test": 0.9544
+  },
+  {
+   "epoca": 165,
+   "acc_test": 0.9539
+  },
+  {
+   "epoca": 166,
+   "acc_test": 0.9535
+  },
+  {
+   "epoca": 167,
+   "acc_test": 0.9542
+  },
+  {
+   "epoca": 168,
+   "acc_test": 0.9538
+  },
+  {
+   "epoca": 169,
+   "acc_test": 0.9538
+  },
+  {
+   "epoca": 170,
+   "acc_test": 0.9532
+  },
+  {
+   "epoca": 171,
+   "acc_test": 0.9536
+  },
+  {
+   "epoca": 172,
+   "acc_test": 0.9548
+  },
+  {
+   "epoca": 173,
+   "acc_test": 0.9535
+  },
+  {
+   "epoca": 174,
+   "acc_test": 0.9543
+  },
+  {
+   "epoca": 175,
+   "acc_test": 0.9536
+  },
+  {
+   "epoca": 176,
+   "acc_test": 0.9539
+  },
+  {
+   "epoca": 177,
+   "acc_test": 0.9551
+  },
+  {
+   "epoca": 178,
+   "acc_test": 0.9544
+  },
+  {
+   "epoca": 179,
+   "acc_test": 0.9528
+  },
+  {
+   "epoca": 180,
+   "acc_test": 0.9541
+  },
+  {
+   "epoca": 181,
+   "acc_test": 0.9533
+  },
+  {
+   "epoca": 182,
+   "acc_test": 0.9536
+  },
+  {
+   "epoca": 183,
+   "acc_test": 0.9541
+  },
+  {
+   "epoca": 184,
+   "acc_test": 0.9543
+  },
+  {
+   "epoca": 185,
+   "acc_test": 0.9542
+  },
+  {
+   "epoca": 186,
+   "acc_test": 0.9542
+  },
+  {
+   "epoca": 187,
+   "acc_test": 0.9537
+  },
+  {
+   "epoca": 188,
+   "acc_test": 0.9542
+  },
+  {
+   "epoca": 189,
+   "acc_test": 0.9551
+  },
+  {
+   "epoca": 190,
+   "acc_test": 0.9544
+  },
+  {
+   "epoca": 191,
+   "acc_test": 0.9541
+  },
+  {
+   "epoca": 192,
+   "acc_test": 0.954
+  },
+  {
+   "epoca": 193,
+   "acc_test": 0.9547
+  },
+  {
+   "epoca": 194,
+   "acc_test": 0.9541
+  },
+  {
+   "epoca": 195,
+   "acc_test": 0.9543
+  },
+  {
+   "epoca": 196,
+   "acc_test": 0.9546
+  },
+  {
+   "epoca": 197,
+   "acc_test": 0.9554
+  },
+  {
+   "epoca": 198,
+   "acc_test": 0.9539
+  },
+  {
+   "epoca": 199,
+   "acc_test": 0.9553
+  },
+  {
+   "epoca": 200,
+   "acc_test": 0.9548
+  }
+ ],
+ "fuente_receta": "https://github.com/locuslab/convmixer-cifar10",
+ "nota": "Corrida en Kaggle (9/11/2026), 200 épocas completas, 5113,8 s de ejecución total del notebook (84,6 min de entrenamiento). Transcripta de la salida RESULTADO_JSON/HISTORIA_TEST del registro del notebook 'TF UNAJ ConvMixer CIFAR10 receta paper 200ep GPU' (la exactitud de test por época es exacta a 4 decimales; no se transcribieron las exactitudes de entrenamiento, que con mixup/CutMix se miden contra la etiqueta original y no son comparables). Se informa la ÚLTIMA época."
+}

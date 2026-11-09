@@ -361,12 +361,15 @@ C.append(md(r"""
 """))
 
 C.append(md(r"""
-## 7. ¿Y con el cómputo del paper? Réplica en GPU (Google Colab)
+## 7. ¿Y con el cómputo del paper? Réplica en GPU (Google Colab y Kaggle)
 Para separar "error de implementación" de "falta de cómputo", corrí el mismo modelo en una GPU gratuita de Google
 Colab (Tesla T4) con la **receta oficial de los autores para CIFAR-10** (repositorio
 <https://github.com/locuslab/convmixer-cifar10>): ConvMixer-256/8, $k=5$, $p=2$, RandAugment, ColorJitter,
-*random erasing*, AdamW y 100 épocas, a unos 55 s por época. El script es `src/colab_receta_paper.py`.
-La celda lee el resultado guardado (o el registro parcial, si la sesión gratuita se cortó).
+*random erasing*, AdamW y 100 épocas, a unos 56 s por época. El script es `src/colab_receta_paper.py`.
+Después, para acercarme a la receta del **artículo** (Apéndice B: 200 épocas, mixup, CutMix y sin *weight decay*), corrí el
+mismo script en **Kaggle** (GPU Tesla T4, `--epochs 200 --wd 0 --mixup 0.8 --cutmix 1.0`), porque Colab gratuito ya no me
+daba GPU. Antes hubo una primera corrida de Colab que se cortó en la época 84 al perderse la sesión (94,50 %); su
+registro también está en `results/`. La celda lee los resultados guardados y los compara.
 """))
 
 C.append(code(r"""
@@ -384,7 +387,7 @@ f_kg = RAIZ / "results" / "kaggle_200ep.json"
 if f_kg.exists():
     k = json.loads(f_kg.read_text(encoding="utf8")); acc_k = [h["acc_test"] for h in k["historia"]]
     plt.plot(range(1, len(acc_k) + 1), 100 * np.array(acc_k), color="#D9822B", ls="--", label="Kaggle: receta del artículo, 200 ép.")
-    seg_k = np.mean([h["segundos_epoca"] for h in k["historia"]])
+    seg_k = k["segundos_epoca_media"]
     print(f"Kaggle ({k['gpu']}, receta del artículo): exactitud en la última época {100 * acc_k[-1]:.2f} %; "
           f"{seg_k:.0f} s por época, {k['minutos']:.0f} min en total")
 plt.axhline(95.21, color="#C0392B", ls="--", lw=1); plt.text(2, 95.8, "paper (k=5, p=2, 200 épocas): 95,21 %", color="#C0392B", fontsize=8)
@@ -392,15 +395,19 @@ plt.ylim(50, 100); plt.xlabel("época"); plt.ylabel("exactitud de test (%)"); pl
 """))
 
 C.append(md(r"""
-> **🔎 Qué observar.** Con la receta completa la exactitud queda a menos de un punto del valor publicado: la
-> implementación es correcta y la diferencia de la réplica en CPU se explica por la escala (épocas, tamaño y
-> aumentación). La curva se usa sólo para seguir el entrenamiento: se informa la **última** época, no la mejor
+> **🔎 Qué observar.** Con la receta del repositorio (Colab, 100 épocas) la exactitud queda a un punto del valor
+> publicado (94,47 %); con la del artículo (Kaggle, 200 épocas, mixup y CutMix) llega a **95,48 %**, que *iguala* el
+> 95,21 % publicado. Es una sola semilla: los 0,27 puntos de diferencia están dentro del azar esperable (0,2 a 0,3),
+> así que no es una mejora demostrada. Tampoco se puede decir qué cambio aportó más (épocas, mixup/CutMix o
+> *weight decay*), porque cambiaron juntos. En tiempos, la misma GPU fue más del doble de rápida por época en Kaggle
+> (≈25 s frente a ≈56 s; no sé a qué atribuirlo con certeza: pudo influir la cantidad de procesos que preparan las
+> imágenes). La curva se usa sólo para seguir el entrenamiento: se informa la **última** época, no la mejor
 > (elegir la mejor mirando el test sería hacer trampa, U1).
 
 ## 8. Conclusiones de la réplica
 Ver la discusión completa en `informe/TF_informe.pdf`. En síntesis:
 
-1. **La implementación es correcta.** Con la receta de los autores en GPU, el modelo queda cerca del 95,2 % publicado.
+1. **La implementación es correcta.** Con la receta del repositorio en GPU (Colab) el modelo llega a 94,5 %, y con la del artículo (Kaggle, 200 épocas) a 95,48 %, que iguala el 95,21 % publicado (una semilla).
 2. **Con poco cómputo, ConvMixer ≈ ResNet** (82,7 % frente a 83,0 %), pero la ResNet es unas 3,7 veces más rápida:
    el costo del ConvMixer se reproduce y su ventaja en exactitud no.
 3. **Ablaciones:** el efecto del parche se reproduce ($p=4$ pierde 4 puntos); el del núcleo grande, no: con 10
