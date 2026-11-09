@@ -6,8 +6,19 @@ src/modelos.py (idéntico). La exactitud que se informa es la de la ÚLTIMA épo
 mirando el test).
 
 Uso en Colab (Entorno de ejecución → Cambiar tipo → GPU T4):
+    # Corrida 2 del TF (receta del repositorio, 100 épocas, 94,47 %):
     !python colab_receta_paper.py --epochs 100 --conv-ks 5
+    # Receta del artículo (Apéndice B: 200 épocas, mixup + CutMix, sin weight decay; Tabla 4: 95,21 %),
+    # con un checkpoint por época en Drive para reanudar si se corta la sesión (~3 h 10 min en T4):
+    from google.colab import drive; drive.mount('/content/drive')
+    !python colab_receta_paper.py --epochs 200 --conv-ks 5 --wd 0 --mixup 0.8 --cutmix 1.0 --ckpt /content/drive/MyDrive/convmixer_200ep_ckpt.pt --salida resultado_colab_200ep.json
+    (si la sesión se corta, volver a ejecutar EXACTAMENTE el mismo comando: retoma desde la última época)
+
+mixup/CutMix: por lote, en la GPU, como en timm (con probabilidad 0,5 se elige uno u otro; alfas 0,8 y 1,0,
+los valores por defecto de timm/DeiT; el artículo no publica los suyos). Con --mixup 0 --cutmix 0 (por defecto)
+el script hace exactamente lo mismo que antes.
 """
+import os
 import argparse
 import json
 import time
@@ -36,6 +47,9 @@ p.add_argument("--epochs", default=100, type=int)
 p.add_argument("--lr-max", default=0.05, type=float)
 p.add_argument("--workers", default=2, type=int)
 p.add_argument("--salida", default="resultado_colab.json")
+p.add_argument("--mixup", default=0.0, type=float, help="alfa de mixup (0 = no usar)")
+p.add_argument("--cutmix", default=0.0, type=float, help="alfa de CutMix (0 = no usar)")
+p.add_argument("--ckpt", default="", help="checkpoint por época (p. ej. en Drive) para reanudar")
 a = p.parse_args()
 
 
@@ -76,8 +90,39 @@ crit = nn.CrossEntropyLoss()
 escala = torch.amp.GradScaler("cuda")
 print(f"{a.name}: {n_par:,} parámetros | GPU: {torch.cuda.get_device_name(0)}", flush=True)
 
-hist, t0 = [], time.time()
-for ep in range(a.epochs):
+
+def mezclar(X, y):
+    """mixup o CutMix sobre el lote (como timm). Devuelve X mezclado, y permutada y lambda."""
+    usos = [m for m, alfa in (("mixup", a.mixup), ("cutmix", a.cutmix)) if alfa > 0]
+    if not usos:
+        return X, y, 1.0
+    modo = usos[np.random.randint(len(usos))]
+    lam = float(np.random.beta(a.mixup, a.mixup) if modo == "mixup" else np.random.beta(a.cutmix, a.cutmix))
+    perm = torch.randperm(X.size(0), device=X.device)
+    if modo == "mixup":
+        X = lam * X + (1 - lam) * X[perm]
+    else:
+        H, W = X.shape[-2:]
+        rh, rw = int(H * np.sqrt(1 - lam)), int(W * np.sqrt(1 - lam))
+        cy, cx = np.random.randint(H), np.random.randint(W)
+        y0, y1 = np.clip(cy - rh // 2, 0, H), np.clip(cy + rh // 2, 0, H)
+        x0, x1 = np.clip(cx - rw // 2, 0, W), np.clip(cx + rw // 2, 0, W)
+        X = X.clone()
+        X[:, :, y0:y1, x0:x1] = X[perm, :, y0:y1, x0:x1]
+        lam = 1 - (y1 - y0) * (x1 - x0) / (H * W)
+    return X, y[perm], lam
+
+
+hist, ep0, previos = [], 0, 0.0
+if a.ckpt and os.path.exists(a.ckpt):
+    c = torch.load(a.ckpt, map_location=dev, weights_only=False)
+    modelo.load_state_dict(c["modelo"])
+    opt.load_state_dict(c["opt"])
+    escala.load_state_dict(c["escala"])
+    hist, ep0, previos = c["hist"], c["epoca"], c["segundos"]
+    print(f"Reanudando desde el checkpoint {a.ckpt}: {ep0} épocas hechas", flush=True)
+t0 = time.time() - previos
+for ep in range(ep0, a.epochs):
     ti = time.time()
     modelo.train()
     perd, acc, n = 0.0, 0, 0
@@ -87,9 +132,10 @@ for ep in range(a.epochs):
         lr = lr_de(ep + (i + 1) / len(dl_tr))
         opt.param_groups[0]["lr"] = lr
         opt.zero_grad(set_to_none=True)
+        Xm, y2, lam = mezclar(X, y)
         with torch.autocast("cuda", dtype=torch.float16):
-            out = modelo(X)
-            loss = crit(out, y)
+            out = modelo(Xm)
+            loss = lam * crit(out, y) + (1 - lam) * crit(out, y2) if lam < 1 else crit(out, y)
         escala.scale(loss).backward()
         escala.unscale_(opt)
         nn.utils.clip_grad_norm_(modelo.parameters(), 1.0)
@@ -109,6 +155,10 @@ for ep in range(a.epochs):
                  "segundos_epoca": time.time() - ti})
     print(f"[{a.name}] época {ep + 1:3d}/{a.epochs} | entr {acc / n:.4f} | test {ok / m:.4f} | "
           f"{time.time() - ti:.0f} s | lr {lr:.5f}", flush=True)
+    if a.ckpt:
+        torch.save({"modelo": modelo.state_dict(), "opt": opt.state_dict(), "escala": escala.state_dict(),
+                    "hist": hist, "epoca": ep + 1, "segundos": time.time() - t0}, a.ckpt + ".tmp")
+        os.replace(a.ckpt + ".tmp", a.ckpt)
 
 res = {"nombre": a.name, "args": vars(a), "parametros": n_par, "gpu": torch.cuda.get_device_name(0),
        "acc_test_final": hist[-1]["acc_test"], "minutos": (time.time() - t0) / 60, "historia": hist,

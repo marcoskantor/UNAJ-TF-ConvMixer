@@ -59,6 +59,16 @@ cd ../informe && latexmk -pdf TF_informe.tex
 Réplica en GPU (Google Colab, Entorno de ejecución → T4): subir `src/colab_receta_paper.py` y ejecutar
 `!python colab_receta_paper.py --epochs 100 --conv-ks 5` (~1 h 30 min).
 
+Receta del artículo (Apéndice B: 200 épocas, mixup + CutMix, sin weight decay; publicado 95,21 %), con
+checkpoint en Drive para reanudar si se corta la sesión (~3 h 10 min en T4):
+
+```python
+from google.colab import drive; drive.mount('/content/drive')
+!python colab_receta_paper.py --epochs 200 --conv-ks 5 --wd 0 --mixup 0.8 --cutmix 1.0 --ckpt /content/drive/MyDrive/convmixer_200ep_ckpt.pt --salida resultado_colab_200ep.json
+```
+
+Si la sesión se corta, se vuelve a ejecutar el mismo comando y retoma desde la última época guardada.
+
 ## Estructura
 
 ```
