@@ -377,10 +377,18 @@ if f_json.exists():
 else:
     filas = re.findall(r"época\s+(\d+)/(\d+) \| entr ([\d.]+) \| test ([\d.]+)", f_log.read_text(encoding="utf8"))
     acc = [float(r[3]) for r in filas]; nota = f"corrida interrumpida en la época {len(acc)} de 100"
-plt.figure(figsize=(6, 3.5)); plt.plot(range(1, len(acc) + 1), 100 * np.array(acc), color="#003366")
+plt.figure(figsize=(6, 3.5)); plt.plot(range(1, len(acc) + 1), 100 * np.array(acc), color="#003366", label="Colab T4: receta del repositorio, 100 ép.")
+print(f"Colab (T4, receta del repositorio): exactitud de test en la última época {100 * acc[-1]:.2f} % ({nota})")
+# Kaggle: receta del artículo (200 épocas, mixup + CutMix, sin weight decay). results/kaggle_200ep.json
+f_kg = RAIZ / "results" / "kaggle_200ep.json"
+if f_kg.exists():
+    k = json.loads(f_kg.read_text(encoding="utf8")); acc_k = [h["acc_test"] for h in k["historia"]]
+    plt.plot(range(1, len(acc_k) + 1), 100 * np.array(acc_k), color="#D9822B", ls="--", label="Kaggle: receta del artículo, 200 ép.")
+    seg_k = np.mean([h["segundos_epoca"] for h in k["historia"]])
+    print(f"Kaggle ({k['gpu']}, receta del artículo): exactitud en la última época {100 * acc_k[-1]:.2f} %; "
+          f"{seg_k:.0f} s por época, {k['minutos']:.0f} min en total")
 plt.axhline(95.21, color="#C0392B", ls="--", lw=1); plt.text(2, 95.8, "paper (k=5, p=2, 200 épocas): 95,21 %", color="#C0392B", fontsize=8)
-plt.ylim(50, 100); plt.xlabel("época"); plt.ylabel("exactitud de test (%)"); plt.show()
-print(f"Exactitud de test en la última época: {100 * acc[-1]:.2f} % ({nota})")
+plt.ylim(50, 100); plt.xlabel("época"); plt.ylabel("exactitud de test (%)"); plt.legend(loc="lower right", fontsize=8); plt.show()
 """))
 
 C.append(md(r"""

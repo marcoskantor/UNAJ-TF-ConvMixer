@@ -350,20 +350,36 @@ def leer_colab():
             "seg": np.mean([float(r[4]) for r in filas])}
 
 
+def leer_kaggle():
+    """Corrida con la receta del artículo (200 épocas, mixup/CutMix, wd 0) en Kaggle: results/kaggle_200ep.json."""
+    f = RES / "kaggle_200ep.json"
+    if not f.exists():
+        return None
+    d = json.loads(f.read_text(encoding="utf8"))
+    return {"acc": [h["acc_test"] for h in d["historia"]], "final": d["acc_test_final"], "epocas": d["args"]["epochs"],
+            "seg": np.mean([h["segundos_epoca"] for h in d["historia"]]), "minutos": d["minutos"]}
+
+
 def fig_colab():
-    c = leer_colab()
+    c, k = leer_colab(), leer_kaggle()
     if not c:
         return
     fig, ax = plt.subplots(figsize=(6.2, 3.8))
-    ep = np.arange(1, len(c["acc"]) + 1)
-    ax.plot(ep, 100 * np.array(c["acc"]), color=AZUL, lw=1.8)
+    curvas = [(c, AZUL, "-", "Colab: receta del repositorio, 100 épocas")]
+    if k:
+        curvas.append((k, NARANJA, "--", "Kaggle: receta del artículo, 200 épocas"))
+    for d, col, ls, et in curvas:
+        ep = np.arange(1, len(d["acc"]) + 1)
+        ax.plot(ep, 100 * np.array(d["acc"]), color=col, lw=1.6, ls=ls, label=et)
+        ax.annotate(f"{100 * d['final']:.1f} %".replace(".", ","), (ep[-1], 100 * d["final"]), xytext=(6, -10),
+                    textcoords="offset points", fontsize=9, color=col)
     ax.axhline(95.21, color=ROJO, lw=1, ls=(0, (4, 3)))
     ax.text(2, 95.21 + 0.6, "Trockman y Kolter (2023), Tabla 4: 95,21 % (k=5, p=2, 200 épocas)", color=ROJO, fontsize=8.5)
-    ax.annotate(f"{100 * c['final']:.1f} %".replace(".", ","), (ep[-1], 100 * c["final"]), xytext=(6, -10),
-                textcoords="offset points", fontsize=9, color=TINTA)
+    if k:
+        ax.legend(loc="lower right", fontsize=8.5, frameon=False)
     ax.set_xlabel("época")
     ax.set_ylabel("exactitud de test (%)")
-    ax.set_xlim(0, c["epocas"] + 6)
+    ax.set_xlim(0, max(c["epocas"], k["epocas"] if k else 0) + 12)
     ax.set_ylim(50, 100)
     guardar_fig(fig, "f_colab.png")
     plt.close(fig)
@@ -420,6 +436,14 @@ def resultados():
                           f"en las últimas épocas la tasa de aprendizaje ya era casi nula)")
     else:
         R["accColab"], R["segColab"], R["colabNota"], R["epColab"], R["minColab"], R["minEpCPU"] = "--", "--", "", "--", "--", "--"
+    k = leer_kaggle()
+    if k:
+        R["accKaggle"] = fmt(100 * k["final"])
+        R["segKaggle"] = f"{k['seg']:.0f}"
+        R["epKaggle"] = str(len(k["acc"]))
+        R["minKaggle"] = f"{k['minutos']:.0f}"
+    else:
+        R["accKaggle"], R["segKaggle"], R["epKaggle"], R["minKaggle"] = "--", "--", "--", "--"
     tex = "% Generado por src/figuras.py a partir de results/*.json — no editar a mano\n"
     tex += "".join(f"\\providecommand{{\\{k}}}{{{v}}}\n" for k, v in R.items())
     (RAIZ / "presentacion" / "resultados.tex").write_text(tex, encoding="utf8")
